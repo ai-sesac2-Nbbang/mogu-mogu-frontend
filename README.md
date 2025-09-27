@@ -26,9 +26,7 @@ https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend.git
 #### 1) expo 패키지 설치
 ```bash
 npm install expo
-
-#또는 최신 Expo SDK로 맞추고 싶다면:
-npx install-expo-modules@latest
+npx expo install expo-constants
 ```
 #### 2) Navigation
 ```bash

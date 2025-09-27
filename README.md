@@ -64,9 +64,9 @@ npx expo start
 - 🚨주의사항 : 노트북과 휴대폰은 동일한 Wi-Fi 로 사용해야 합니다.
 
 ## 📚 문서 (추후 업데이트 예정)
-- [**설치 및 설정 가이드**] - 프로젝트 설정 및 개발 환경 구성
-- [**개발 가이드**] - 새로운 기능 추가 및 개발 방법
-- [**배포 가이드**] - 프로덕션 배포 방법
+- [**설치 및 설정 가이드**](https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend/blob/main/docs/setup.md) - 프로젝트 설정 및 개발 환경 구성
+- [**개발 가이드**](https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend/blob/main/docs/development.md) - 새로운 기능 추가 및 개발 방법
+- [**배포 가이드**](https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend/blob/main/docs/deployment.md) - 프로덕션 배포 방법
 
 ## 🛠 기술 스택
 - **Runtime**: React Native (Expo, TypeScript)
@@ -97,4 +97,4 @@ src/
 ```
 
 ## 🆘 문제 해결
-자주 발생하는 문제들과 해결 방법은 [설치 및 설정 가이드]를 참조하세요.
+자주 발생하는 문제들과 해결 방법은 [설치 및 설정 가이드](https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend/blob/main/docs/setup.md)를 참조하세요.

@@ -1,5 +1,5 @@
 # 모구모구 프론트엔드 프로젝트
-모구모구 프론트엔드는 Expo + React Native + TypeScript + React Navigation 기반으로 빠르게 개발/배포할 수 있도록 구성합니다.
+모구모구 프론트엔드는 Expo + React Native + TypeScript + React Navigation 기반으로 개발/배포할 수 있도록 구성합니다.
 
 ## ✅ 필수 설치
 - [**Node.js**](https://nodejs.org/ko/download): LTS (≥ 18.x 권장)

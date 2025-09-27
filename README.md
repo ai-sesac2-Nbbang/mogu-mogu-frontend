@@ -26,6 +26,7 @@ https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend.git
 #### 1) expo 패키지 설치
 ```bash
 npm install expo
+npm install react-native-svg
 npx expo install expo-constants
 ```
 #### 2) Navigation

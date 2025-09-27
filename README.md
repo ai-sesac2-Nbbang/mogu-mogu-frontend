@@ -13,37 +13,45 @@ npm i -g eas-cli # Expo 빌드/배포 전용 도구 설치
 ## 🚀 빠른 시작
 ### 1. 프로젝트 다운로드 (최초 1회)
 #### 1) Github → ai-sesac2-Nbbang → mogu-mogu-frontend → git clone (주소 복사, Copy url to clipboard)
+<img width="403" height="252" alt="image" src="https://github.com/user-attachments/assets/eaf8dba6-3e36-47c1-be11-af20cf5ea8ea" />
+
 ```bash
 https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend.git
 ```
-<img width="403" height="252" alt="image" src="https://github.com/user-attachments/assets/eaf8dba6-3e36-47c1-be11-af20cf5ea8ea" />
 
 #### 2) Visual Studio Code 에서 git clone 👉 [링크](https://bba-jin.tistory.com/50#google_vignette)
 
 ### 2. 라이브러리 설치
 - Visual Studio Code 실행 → 프로젝트 폴더 열기 → 터미널에서 아래의 라이브러리 설치
-#### 1) Navigation
+#### 1) expo 패키지 설치
+```bash
+npm install expo
+
+#또는 최신 Expo SDK로 맞추고 싶다면:
+npx install-expo-modules@latest
+```
+#### 2) Navigation
 ```bash
 npx expo install @react-navigation/native
 npx expo install react-native-screens react-native-safe-area-context
 npx expo install @react-navigation/native-stack
 npx expo install @react-navigation/bottom-tabs
 ```
-#### 2) Gesture & Animation
+#### 3) Gesture & Animation
 ```bash
 npx expo install react-native-gesture-handler react-native-reanimated
 npm i -D babel-preset-expo
 ```
-#### 3) HTTP/Storage
+#### 4) HTTP/Storage
 ```bash
 npm i axios
 npx expo install @react-native-async-storage/async-storage
 ```
-#### 4) (선택) React Query
+#### 5) (선택) React Query
 ```bash
 npm i @tanstack/react-query
 ```
-#### 5) 지도/위치
+#### 6) 지도/위치
 ```bash
 npx expo install react-native-webview
 npx expo install expo-location

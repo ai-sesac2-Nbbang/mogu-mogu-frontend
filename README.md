@@ -13,6 +13,9 @@ npm i -g eas-cli # Expo 빌드/배포 전용 도구 설치
 ## 🚀 빠른 시작
 ### 1. 프로젝트 다운로드 (최초 1회)
 #### 1) Github → ai-sesac2-Nbbang → mogu-mogu-frontend → git clone (주소 복사, Copy url to clipboard)
+```bash
+https://github.com/ai-sesac2-Nbbang/mogu-mogu-frontend.git
+```
 <img width="403" height="252" alt="image" src="https://github.com/user-attachments/assets/eaf8dba6-3e36-47c1-be11-af20cf5ea8ea" />
 
 #### 2) Visual Studio Code 에서 git clone 👉 [링크](https://bba-jin.tistory.com/50#google_vignette)

@@ -3,12 +3,17 @@ import {
   createBottomTabNavigator,
   type BottomTabBarProps, // 커스텀 탭바 prop 타입
 } from "@react-navigation/bottom-tabs";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 
 // 화면 컴포넌트 import
 import HomeScreen from "../screens/HomeScreen";
 import MyPageScreen from "../screens/MyPageScreen";
 import MapScreen from "../screens/MapScreen";
+
+// LoginScreen에 전달할 props 타입 정의
+interface LoginScreenProps {
+  setIsLoggedIn: (value: boolean) => void;
+}
 
 // 1) 탭 파라미터 타입: 각 탭의 route 파라미터 형태 정의 (전부 파라미터 없음)
 type RootTabParamList = {

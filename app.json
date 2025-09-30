@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "mogumogu", // 딥링크를 위한 스킴 설정
     "name": "mogumogu",
     "slug": "mogumogu",
     "version": "1.0.0",
@@ -15,7 +16,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "내 주변 공동구매 글을 보여주기 위해 위치 접근이 필요합니다."
+        "NSLocationWhenInUseUsageDescription": "내 주변 공동구매 글을 보여주기 위해 위치 접근이 필요합니다.",
+        "bundleIdentifier": "com.yourcompany.mogumogu"
       }
     },
     "android": {
@@ -34,8 +36,9 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-web-browser",
-      "expo-secure-store"
-    ]
+      "expo-web-browser", // 카카오 로그인용 웹브라우저 
+      "expo-secure-store"  // JWT 저장용
+    ],
+    "package": "com.yourcompany.mogumogu"
   }
 }

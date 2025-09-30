@@ -1,5 +1,5 @@
 // src/screens/SignupWizardScreen.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
   const [formData, setFormData] = useState({
     name: "",
     nickname: "",
+    phone: "010-",
     birth: "",
     gender: "",
     familySize: "",
@@ -28,26 +29,59 @@ export default function SignupWizardScreen({ onComplete }: Props) {
     markets: [] as string[],
   });
 
-  const [errors, setErrors] = useState({ name: "", nickname: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    nickname: "",
+    phone: "",
+    birth: "",
+    gender: "",
+    familySize: "",
+    address: "",
+    interests: "",
+    markets: "",
+  });
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
-  const validateField = (name: string, value: string) => {
-    if (value.length < 2) {
-      setErrors((prev) => ({ ...prev, [name]: "2글자 이상 입력해주세요." }));
-      return false;
-    }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-    return true;
-  };
+  // ✅ 입력창 refs
+  const nameRef = useRef<TextInput>(null);
+  const nicknameRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const birthRef = useRef<TextInput>(null);
+  const addressRef = useRef<TextInput>(null);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-    if (field === "name" || field === "nickname") {
-      validateField(field, value);
+    if (field === "phone") {
+      let numericValue = value.replace(/[^0-9]/g, "");
+      if (!numericValue.startsWith("010")) {
+        numericValue = "010" + numericValue.slice(3);
+      }
+      if (numericValue.length > 11) {
+        numericValue = numericValue.slice(0, 11);
+      }
+
+      let formatted = numericValue;
+      if (numericValue.length > 3 && numericValue.length <= 7) {
+        formatted = numericValue.slice(0, 3) + "-" + numericValue.slice(3);
+      } else if (numericValue.length > 7) {
+        formatted =
+          numericValue.slice(0, 3) +
+          "-" +
+          numericValue.slice(3, 7) +
+          "-" +
+          numericValue.slice(7);
+      }
+
+      setFormData({ ...formData, phone: formatted });
+      setErrors((prev) => ({ ...prev, phone: "" })); // ✅ 입력 시 에러 해제
+      return;
     }
+
+    setFormData({ ...formData, [field]: value });
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const showDatePicker = () => setDatePickerVisibility(true);
@@ -56,6 +90,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
   const handleConfirm = (date: Date) => {
     const formattedDate = moment(date).format("YYYY.MM.DD");
     setFormData({ ...formData, birth: formattedDate });
+    setErrors((prev) => ({ ...prev, birth: "" }));
     hideDatePicker();
   };
 
@@ -66,13 +101,63 @@ export default function SignupWizardScreen({ onComplete }: Props) {
         ? prev.markets.filter((m) => m !== market)
         : [...prev.markets, market],
     }));
+    setErrors((prev) => ({ ...prev, markets: "" }));
+  };
+
+  // 🚨 입력값 검증 함수
+  const validateStep = () => {
+    if (step === 1) {
+      if (!formData.name || formData.name.length < 2) {
+        setErrors((prev) => ({ ...prev, name: "이름은 2글자 이상 입력해주세요." }));
+        nameRef.current?.focus();
+        return false;
+      }
+      if (!formData.nickname || formData.nickname.length < 2) {
+        setErrors((prev) => ({ ...prev, nickname: "닉네임은 2글자 이상 입력해주세요." }));
+        nicknameRef.current?.focus();
+        return false;
+      }
+      if (!formData.phone || formData.phone.length < 13) {
+        setErrors((prev) => ({ ...prev, phone: "전화번호를 올바르게 입력해주세요." }));
+        phoneRef.current?.focus();
+        return false;
+      }
+      if (!formData.birth) {
+        setErrors((prev) => ({ ...prev, birth: "생년월일을 입력해주세요." }));
+        birthRef.current?.focus();
+        return false;
+      }
+      if (!formData.gender) {
+        setErrors((prev) => ({ ...prev, gender: "성별을 선택해주세요." }));
+        return false;
+      }
+      if (!formData.familySize) {
+        setErrors((prev) => ({ ...prev, familySize: "가구원 수를 선택해주세요." }));
+        return false;
+      }
+    }
+    if (step === 2 && selectedInterests.length === 0) {
+      setErrors((prev) => ({ ...prev, interests: "관심상품을 선택해주세요." }));
+      return false;
+    }
+    if (step === 3 && !formData.address) {
+      setErrors((prev) => ({ ...prev, address: "주소를 입력해주세요." }));
+      addressRef.current?.focus();
+      return false;
+    }
+    if (step === 4 && formData.markets.length === 0) {
+      setErrors((prev) => ({ ...prev, markets: "위시마켓을 선택해주세요." }));
+      return false;
+    }
+
+    return true;
   };
 
   const handleNext = () => {
+    if (!validateStep()) return;
     if (step < 4) {
       setStep(step + 1);
     } else {
-      // 완료 → 가입 완료 모달
       setShowCompleteModal(true);
     }
   };
@@ -89,9 +174,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
           {[1, 2, 3, 4].map((s) => (
             <View key={s} style={styles.stepWrapper}>
               <Text style={styles.stepNumber}>{s}</Text>
-              <Text style={[styles.stepDot, step === s && styles.stepActive]}>
-                ●
-              </Text>
+              <Text style={[styles.stepDot, step === s && styles.stepActive]}>●</Text>
             </View>
           ))}
         </View>
@@ -106,45 +189,63 @@ export default function SignupWizardScreen({ onComplete }: Props) {
         </Text>
       </View>
 
-      {/* STEP 1: 개인정보 입력 */}
+      {/* STEP 1: 개인정보 */}
       {step === 1 && (
         <View style={styles.form}>
+          {/* 이름 */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>이름</Text>
             <TextInput
+              ref={nameRef}
               style={[styles.input, errors.name ? styles.inputError : null]}
-              placeholder="실명을 입력해 주세요"
+              placeholder="이름을 입력해 주세요"
               value={formData.name}
               onChangeText={(text) => handleInputChange("name", text)}
             />
-            {errors.name ? (
-              <Text style={styles.errorText}>{errors.name}</Text>
-            ) : null}
+            {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
           </View>
 
+          {/* 닉네임 */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>닉네임</Text>
             <TextInput
+              ref={nicknameRef}
               style={[styles.input, errors.nickname ? styles.inputError : null]}
               placeholder="사용하실 닉네임"
               value={formData.nickname}
               onChangeText={(text) => handleInputChange("nickname", text)}
             />
-            {errors.nickname ? (
-              <Text style={styles.errorText}>{errors.nickname}</Text>
-            ) : null}
+            {errors.nickname ? <Text style={styles.errorText}>{errors.nickname}</Text> : null}
           </View>
 
+          {/* 전화번호 */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>전화번호</Text>
+            <TextInput
+              ref={phoneRef}
+              style={[styles.input, errors.phone ? styles.inputError : null]}
+              keyboardType="numeric"
+              placeholder="010-0000-0000"
+              value={formData.phone}
+              onChangeText={(text) => handleInputChange("phone", text)}
+              maxLength={13}
+            />
+            {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
+          </View>
+
+          {/* 생년월일 */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>생년월일</Text>
             <TouchableOpacity onPress={showDatePicker}>
               <TextInput
-                style={styles.input}
+                ref={birthRef}
+                style={[styles.input, errors.birth ? styles.inputError : null]}
                 placeholder="ex) 1998.01.01"
                 value={formData.birth}
                 editable={false}
               />
             </TouchableOpacity>
+            {errors.birth ? <Text style={styles.errorText}>{errors.birth}</Text> : null}
             <DateTimePickerModal
               isVisible={isDatePickerVisible}
               mode="date"
@@ -155,6 +256,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
             />
           </View>
 
+          {/* 성별 */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>성별</Text>
             <View style={styles.genderButtons}>
@@ -164,14 +266,17 @@ export default function SignupWizardScreen({ onComplete }: Props) {
                   style={[
                     styles.genderButton,
                     formData.gender === gender && styles.genderButtonSelected,
+                    errors.gender ? styles.buttonError : null,
                   ]}
-                  onPress={() => setFormData({ ...formData, gender })}
+                  onPress={() => {
+                    setFormData({ ...formData, gender });
+                    setErrors((prev) => ({ ...prev, gender: "" }));
+                  }}
                 >
                   <Text
                     style={[
                       styles.genderButtonText,
-                      formData.gender === gender &&
-                        styles.genderButtonTextSelected,
+                      formData.gender === gender && styles.genderButtonTextSelected,
                     ]}
                   >
                     {gender}
@@ -179,8 +284,10 @@ export default function SignupWizardScreen({ onComplete }: Props) {
                 </TouchableOpacity>
               ))}
             </View>
+            {errors.gender ? <Text style={styles.errorText}>{errors.gender}</Text> : null}
           </View>
 
+          {/* 가구원 수 */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>가구원 수</Text>
             <View style={styles.familyButtons}>
@@ -189,15 +296,26 @@ export default function SignupWizardScreen({ onComplete }: Props) {
                   key={size}
                   style={[
                     styles.familyButton,
-                    formData.familySize === size &&
-                      styles.familyButtonSelected,
+                    formData.familySize === size && styles.familyButtonSelected,
+                    errors.familySize ? styles.buttonError : null,
                   ]}
-                  onPress={() => setFormData({ ...formData, familySize: size })}
+                  onPress={() => {
+                    setFormData({ ...formData, familySize: size });
+                    setErrors((prev) => ({ ...prev, familySize: "" }));
+                  }}
                 >
-                  <Text style={styles.familyButtonText}>{size}</Text>
+                  <Text
+                    style={[
+                      styles.familyButtonText,
+                      formData.familySize === size && { color: "#fff" },
+                    ]}
+                  >
+                    {size}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
+            {errors.familySize ? <Text style={styles.errorText}>{errors.familySize}</Text> : null}
           </View>
         </View>
       )}
@@ -205,7 +323,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
       {/* STEP 2: 관심상품 */}
       {step === 2 && (
         <View style={styles.form}>
-          <Text style={styles.label}>관심상품을 선택하세요. (중복 선택 가능)</Text>
+          <Text style={styles.label}>관심상품을 선택하세요. (중복 가능)</Text>
           <View style={styles.interestGrid}>
             {[
               { id: "1", name: "생필품류", icon: "🧴" },
@@ -217,35 +335,29 @@ export default function SignupWizardScreen({ onComplete }: Props) {
                 key={item.id}
                 style={[
                   styles.interestButton,
-                  selectedInterests.includes(item.id) &&
-                    styles.interestButtonSelected,
+                  selectedInterests.includes(item.id) && styles.interestButtonSelected,
+                  errors.interests ? styles.buttonError : null,
                 ]}
-                onPress={() =>
+                onPress={() => {
                   setSelectedInterests((prev) =>
-                    prev.includes(item.id)
-                      ? prev.filter((id) => id !== item.id)
-                      : [...prev, item.id]
-                  )
-                }
+                    prev.includes(item.id) ? prev.filter((id) => id !== item.id) : [...prev, item.id]
+                  );
+                  setErrors((prev) => ({ ...prev, interests: "" }));
+                }}
               >
                 <Text style={styles.interestIcon}>{item.icon}</Text>
                 <Text
                   style={[
                     styles.interestText,
-                    selectedInterests.includes(item.id) &&
-                      styles.interestTextSelected,
+                    selectedInterests.includes(item.id) && styles.interestTextSelected,
                   ]}
                 >
                   {item.name}
                 </Text>
-                {selectedInterests.includes(item.id) && (
-                  <View style={styles.checkmark}>
-                    <Text style={styles.checkmarkText}>✓</Text>
-                  </View>
-                )}
               </TouchableOpacity>
             ))}
           </View>
+          {errors.interests ? <Text style={styles.errorText}>{errors.interests}</Text> : null}
         </View>
       )}
 
@@ -254,11 +366,13 @@ export default function SignupWizardScreen({ onComplete }: Props) {
         <View style={styles.form}>
           <Text style={styles.label}>위시스팟 주소 입력</Text>
           <TextInput
-            style={styles.input}
+            ref={addressRef}
+            style={[styles.input, errors.address ? styles.inputError : null]}
             placeholder="도로명 주소를 입력하세요"
             value={formData.address}
-            onChangeText={(text) => setFormData({ ...formData, address: text })}
+            onChangeText={(text) => handleInputChange("address", text)}
           />
+          {errors.address ? <Text style={styles.errorText}>{errors.address}</Text> : null}
         </View>
       )}
 
@@ -283,16 +397,15 @@ export default function SignupWizardScreen({ onComplete }: Props) {
                 key={market}
                 style={[
                   styles.marketButton,
-                  formData.markets.includes(market) &&
-                    styles.marketButtonSelected,
+                  formData.markets.includes(market) && styles.marketButtonSelected,
+                  errors.markets ? styles.buttonError : null,
                 ]}
                 onPress={() => toggleMarket(market)}
               >
                 <Text
                   style={[
                     styles.marketText,
-                    formData.markets.includes(market) &&
-                      styles.marketTextSelected,
+                    formData.markets.includes(market) && styles.marketTextSelected,
                   ]}
                 >
                   {market}
@@ -300,6 +413,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
               </TouchableOpacity>
             ))}
           </View>
+          {errors.markets ? <Text style={styles.errorText}>{errors.markets}</Text> : null}
         </View>
       )}
 
@@ -340,7 +454,9 @@ export default function SignupWizardScreen({ onComplete }: Props) {
         </View>
       </Modal>
 
-      {/* 입력 정보 확인 모달 */}
+
+      {/* 가입 정보 확인 모달 */}
+      {/* 가입 정보 확인 모달 */}
       <Modal visible={showInfoModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -348,6 +464,7 @@ export default function SignupWizardScreen({ onComplete }: Props) {
             <View style={{ marginTop: 10 }}>
               <Text>이름: {formData.name}</Text>
               <Text>닉네임: {formData.nickname}</Text>
+              <Text>전화번호: {formData.phone}</Text>
               <Text>생년월일: {formData.birth}</Text>
               <Text>성별: {formData.gender}</Text>
               <Text>가구원: {formData.familySize}</Text>
@@ -374,18 +491,14 @@ export default function SignupWizardScreen({ onComplete }: Props) {
 const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: "#fff", padding: 20 },
   header: { marginBottom: 30 },
-  stepIndicator: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 20,
-  },
+  stepIndicator: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
   stepWrapper: { alignItems: "center", marginHorizontal: 10 },
   stepNumber: { fontSize: 12, color: "#666", marginBottom: 5 },
   stepDot: { fontSize: 20, color: "#ddd" },
   stepActive: { color: "#e91e63" },
   headerTitle: { fontSize: 24, fontWeight: "bold", textAlign: "center" },
   form: { paddingHorizontal: 20 },
-  inputGroup: { marginBottom: 25 },
+  inputGroup: { marginBottom: 10 },
   label: { fontSize: 14, color: "#333", marginBottom: 8 },
   input: {
     borderWidth: 1,
@@ -395,7 +508,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
   },
-  inputError: { borderColor: "#ff0000" },
+  inputError: { borderColor: "#ff0000", borderWidth: 2 },
   errorText: { color: "#ff0000", fontSize: 12, marginTop: 5 },
   genderButtons: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
   genderButton: {
@@ -436,18 +549,6 @@ const styles = StyleSheet.create({
   interestIcon: { fontSize: 28, marginBottom: 8 },
   interestText: { fontSize: 14, color: "#666", fontWeight: "500" },
   interestTextSelected: { color: "#e91e63", fontWeight: "bold" },
-  checkmark: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: "#e91e63",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkmarkText: { color: "#fff", fontSize: 12, fontWeight: "bold" },
   marketGrid: { flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 20 },
   marketButton: {
     width: "47%",
@@ -461,6 +562,7 @@ const styles = StyleSheet.create({
   marketButtonSelected: { borderColor: "#e91e63", backgroundColor: "#fff" },
   marketText: { fontSize: 14, color: "#666", fontWeight: "500" },
   marketTextSelected: { color: "#e91e63", fontWeight: "bold" },
+  buttonError: { borderColor: "#ff0000", borderWidth: 2 },
   nextBtn: {
     backgroundColor: "#e91e63",
     paddingVertical: 15,
@@ -469,18 +571,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   nextText: { color: "#fff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   modalBox: {
     width: 280,
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 12,
-    alignItems: "flex-start",
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: "60%",
   },
   modalIcon: { fontSize: 40, alignSelf: "center", marginBottom: 10 },
   modalText: {
@@ -495,8 +593,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 25,
     marginTop: 20,
-    alignSelf: "center",   // 버튼 가운데 정렬
-    width: "50%",          // 버튼 너비 50%
+    alignSelf: "center",
+    width: "50%",
   },
   modalButtonText: {
     color: "#fff",
@@ -504,4 +602,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.4)", // ✅ 반투명 회색 배경
+  justifyContent: "flex-start",
+  alignItems: "center",
+},
 });

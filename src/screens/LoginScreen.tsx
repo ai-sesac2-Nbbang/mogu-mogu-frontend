@@ -63,7 +63,7 @@ export default function LoginScreen({ setIsLoggedIn, navigation }: Props) {
   return (
     <View style={styles.container}>
       {/* 앱 로고 */}
-      <Text style={styles.logo}>모구모구</Text>
+      {/* <Text style={styles.logo}>모구모구</Text> */}
 
       {/* 중앙 이미지 */}
       <Image
@@ -76,6 +76,17 @@ export default function LoginScreen({ setIsLoggedIn, navigation }: Props) {
       <TouchableOpacity style={styles.kakaoBtn} onPress={handleKakaoLogin}>
         <Text style={styles.kakaoText}>카카오로 로그인</Text>
       </TouchableOpacity>
+
+      {/* ➕ 바로 메인 화면 이동 버튼 */}
+    <TouchableOpacity
+      style={[styles.kakaoBtn]} // 회색 버튼
+      onPress={() => {
+        // 로그인 체크를 건너뛰고 메인탭(HomeScreen)으로 이동
+        setIsLoggedIn(true);
+      }}
+    >
+      <Text style={styles.kakaoText}>메인 화면으로→</Text>
+    </TouchableOpacity>
 
       {/* 하단 안내 */}
       <Text style={styles.footer}>

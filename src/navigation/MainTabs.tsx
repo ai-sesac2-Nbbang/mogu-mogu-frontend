@@ -1,12 +1,9 @@
 import React from "react"; // React 필수 import
-import {
-  createBottomTabNavigator,
-  type BottomTabBarProps, // 커스텀 탭바 prop 타입
-} from "@react-navigation/bottom-tabs";
-import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
+import { createBottomTabNavigator, BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 
 // 화면 컴포넌트 import
-import HomeScreen from "../screens/HomeScreen";
+import HomeStack from "./HomeStack";
 import MyPageScreen from "../screens/MyPageScreen";
 import MapScreen from "../screens/MapScreen";
 
@@ -15,9 +12,9 @@ interface LoginScreenProps {
   setIsLoggedIn: (value: boolean) => void;
 }
 
-// 1) 탭 파라미터 타입: 각 탭의 route 파라미터 형태 정의 (전부 파라미터 없음)
+// 탭 파라미터 타입 정의
 type RootTabParamList = {
-  Home: undefined;
+  HomeStack: undefined;  // HomeStack으로 수정
   Map: undefined;
   MyPage: undefined;
 };
@@ -99,9 +96,12 @@ export default function MainTabs() {
     // 커스텀 탭바 주입
     <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />}>
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: "홈" }} // 커스텀 탭바 라벨로도 쓰임
+        name="HomeStack"
+        component={HomeStack}
+        options={{
+          tabBarLabel: "홈",
+          headerShown: false,
+        }} // 커스텀 탭바 라벨로도 쓰임
       />
       <Tab.Screen
         name="Map"
@@ -114,7 +114,9 @@ export default function MainTabs() {
       <Tab.Screen
         name="MyPage"
         component={MyPageScreen}
-        options={{ title: "마이페이지" }}
+        options={{
+          title: "마이페이지",
+          headerShown: false,}}
       />
     </Tab.Navigator>
   );

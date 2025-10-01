@@ -28,6 +28,7 @@ export default function AuthStack({ setIsLoggedIn }: Props) {
         )}
       </Stack.Screen>
 
+      {/* 메인 탭 */}
       <Stack.Screen name="MainTabs" component={MainTabs} />
     </Stack.Navigator>
   );

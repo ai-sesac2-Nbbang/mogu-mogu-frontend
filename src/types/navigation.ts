@@ -1,5 +1,15 @@
 // src/types/navigation.ts
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp, NavigatorScreenParams } from '@react-navigation/native';
+
+export type HomeStackParamList = {
+  Home: {
+    selectedAddress?: string;
+    addressLabel?: string;
+  } | undefined;
+  Address: {
+    selectedAddress?: string;
+  } | undefined;
+};
 
 export type RootStackParamList = {
   Login: undefined;

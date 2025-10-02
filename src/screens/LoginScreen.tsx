@@ -1,16 +1,17 @@
 // src/screens/LoginScreen.tsx
-import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
+import { StackScreenProps } from "@react-navigation/stack";
+import Constants from "expo-constants";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { StackScreenProps } from "@react-navigation/stack";
+import React, { useEffect } from "react";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { RootStackParamList } from "../types/navigation";
 import { saveTokens } from "../utils/storage"; // ✅ 추가: 토큰 저장
 
@@ -24,8 +25,11 @@ type Props = StackScreenProps<RootStackParamList, "Login"> & {
 };
 
 export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
-  // ✅ 앱 딥링크(URL): app.json의 scheme/intentFilter와 일치해야 함
-  const RETURN_URL = Linking.createURL("auth/kakao"); // ex) mogumogu://auth/kakao
+  // ✅ 앱 딥링크(URL): 환경에 따라 분기
+  const RETURN_URL =
+    Constants.appOwnership === "expo"
+      ? Linking.createURL("auth/kakao") // Expo Go: exp:// 스킴
+      : "mogumogu://auth/kakao"; // 네이티브 빌드: mogumogu:// 스킴
 
   useEffect(() => {
     const handleDeepLink = async (event: { url: string }) => {
@@ -40,7 +44,11 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
         const accessToken = params.get("access_token") ?? "";
         const refreshToken = params.get("refresh_token") ?? "";
 
-        console.log("Auth params:", { ok, needOnboarding, hasAccess: !!accessToken });
+        console.log("Auth params:", {
+          ok,
+          needOnboarding,
+          hasAccess: !!accessToken,
+        });
 
         if (ok && accessToken && refreshToken) {
           // ✅ 토큰 저장
@@ -48,7 +56,10 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
 
           if (needOnboarding) {
             // 온보딩 요구 → 온보딩 플로우로 이동
-            navigation.reset({ index: 0, routes: [{ name: "SignupWizard" }] });
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "SignupWizard" }],
+            });
           } else {
             // 바로 메인 진입
             setIsLoggedIn(true);
@@ -90,18 +101,25 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
 
       // ✅ 시스템 브라우저 열기: 두 번째 인자에 '앱 딥링크'를 넣어야
       // 브라우저가 그 URL로 리다이렉트되는 순간 세션이 닫히고 앱으로 복귀함
-      const result = await WebBrowser.openAuthSessionAsync(loginUrl, RETURN_URL, {
-        showInRecents: true,
-        controlsColor: "#000000",
-        toolbarColor: "#ffffff",
-      });
+      const result = await WebBrowser.openAuthSessionAsync(
+        loginUrl,
+        RETURN_URL,
+        {
+          showInRecents: true,
+          controlsColor: "#000000",
+          toolbarColor: "#ffffff",
+        }
+      );
 
       console.log("웹브라우저 결과:", result);
       // 여기서는 보통 result.type === "success"여도 최종 처리는
       // 위 useEffect의 Linking 리스너가 받아서 수행함.
     } catch (error) {
       console.error("카카오 로그인 오류:", error);
-      Alert.alert("로그인 오류", "카카오 로그인을 실행할 수 없습니다. 다시 시도해주세요.");
+      Alert.alert(
+        "로그인 오류",
+        "카카오 로그인을 실행할 수 없습니다. 다시 시도해주세요."
+      );
     }
   };
 
@@ -115,7 +133,10 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
       />
 
       {/* 카카오 로그인 버튼 */}
-      <TouchableOpacity style={styles.kakaoBtn} onPress={handleKakaoLogin}>
+      <TouchableOpacity
+        style={styles.kakaoBtn}
+        onPress={handleKakaoLogin}
+      >
         <Text style={styles.kakaoText}>카카오로 로그인</Text>
       </TouchableOpacity>
 
@@ -135,7 +156,12 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
   image: { width: 250, height: 250, marginBottom: 40 },
   kakaoBtn: {
     backgroundColor: "#FEE500",
@@ -145,5 +171,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   kakaoText: { color: "#000", fontSize: 16, fontWeight: "bold" },
-  footer: { fontSize: 12, color: "#666", textAlign: "center", marginTop: 40, paddingHorizontal: 20 },
+  footer: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 40,
+    paddingHorizontal: 20,
+  },
 });

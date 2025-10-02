@@ -1,70 +1,112 @@
 // src/screens/LoginScreen.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  Linking,
+  Alert,
 } from "react-native";
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../types/navigation';
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { StackScreenProps } from "@react-navigation/stack";
+import { RootStackParamList } from "../types/navigation";
+import { saveTokens } from "../utils/storage"; // ✅ 추가: 토큰 저장
 
-// 백엔드 서버 URL 및 상수 정의
-// const BACKEND_URL = "https://your-backend-url.com";
+const BACKEND_URL = "https://mogu-mogu-backend.onrender.com";
+
+// WebBrowser 초기화
+WebBrowser.maybeCompleteAuthSession();
 
 type Props = StackScreenProps<RootStackParamList, "Login"> & {
   setIsLoggedIn: (value: boolean) => void;
 };
 
-export default function LoginScreen({ setIsLoggedIn, navigation }: Props) {
-  // React.useEffect(() => {
-  //   // 딥링크로 돌아왔을 때의 처리
-  //   const handleDeepLink = async (event: { url: string }) => {
-  //     // 백엔드에서 전달한 인증 결과 처리
-  //     if (event.url.includes('auth-success')) {
-  //       const params = new URLSearchParams(event.url.split('?')[1]);
-  //       const isNewUser = params.get('isNewUser') === 'true';
-  //       const token = params.get('token');
+export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
+  // ✅ 앱 딥링크(URL): app.json의 scheme/intentFilter와 일치해야 함
+  const RETURN_URL = Linking.createURL("auth/kakao"); // ex) mogumogu://auth/kakao
 
-  //       if (token) {
-  //         // 토큰 저장 로직 추가 필요
-  //         if (isNewUser) {
-  //           navigation.navigate('SignupWizard');
-  //         } else {
-  //           setIsLoggedIn(true);
-  //         }
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    const handleDeepLink = async (event: { url: string }) => {
+      console.log("Received deep link :", event.url);
+      try {
+        const url = new URL(event.url);
+        const params = new URLSearchParams(url.search);
 
-  //   // 딥링크 리스너 등록
-  //   Linking.addEventListener('url', handleDeepLink);
+        // ✅ 백엔드가 실제로 내려주는 키에 맞춤
+        const ok = params.get("ok") === "true";
+        const needOnboarding = params.get("need_onboarding") === "true";
+        const accessToken = params.get("access_token") ?? "";
+        const refreshToken = params.get("refresh_token") ?? "";
 
-  //   // 컴포넌트 언마운트 시 리스너 제거
-  //   return () => {
-  //     // Linking.removeEventListener('url', handleDeepLink); // React Native 0.65 이상
-  //   };
-  // }, [navigation, setIsLoggedIn]);
+        console.log("Auth params:", { ok, needOnboarding, hasAccess: !!accessToken });
 
-  const handleKakaoLogin = () => {
-    // 임시 함수 - 테스트용
-    // 실제 구현 시에는 이 부분을 주석 처리하고 위의 주석된 카카오 인증 코드를 사용하세요
-    const isNewUser = true; // 테스트를 위해 true/false 전환 가능
-    
-    if (isNewUser) {
-      navigation.navigate('SignupWizard');
-    } else {
-      setIsLoggedIn(true); // MainTabs로 자동 이동
+        if (ok && accessToken && refreshToken) {
+          // ✅ 토큰 저장
+          await saveTokens(accessToken, refreshToken);
+
+          if (needOnboarding) {
+            // 온보딩 요구 → 온보딩 플로우로 이동
+            navigation.reset({ index: 0, routes: [{ name: "SignupWizard" }] });
+          } else {
+            // 바로 메인 진입
+            setIsLoggedIn(true);
+          }
+        } else {
+          Alert.alert("로그인 실패", "카카오 로그인에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("딥링크 처리 오류:", error);
+        Alert.alert("오류", "로그인 처리 중 문제가 발생했습니다.");
+      }
+    };
+
+    // 딥링크 리스너
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    // 앱이 백그라운드 → 포그라운드로 올라오며 이미 받은 URL 처리
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        console.log("Initial URL:", url);
+        handleDeepLink({ url });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [navigation, setIsLoggedIn]);
+
+  // ✅ 카카오 로그인 시작
+  const handleKakaoLogin = async () => {
+    try {
+      console.log("카카오 로그인 시작");
+
+      // 백엔드 로그인 엔드포인트 (서버에서 kakao authorize로 리다이렉트)
+      const loginUrl = `${BACKEND_URL}/auth/kakao/login`;
+      console.log("로그인 URL:", loginUrl);
+      console.log("Return URL (딥링크):", RETURN_URL);
+
+      // ✅ 시스템 브라우저 열기: 두 번째 인자에 '앱 딥링크'를 넣어야
+      // 브라우저가 그 URL로 리다이렉트되는 순간 세션이 닫히고 앱으로 복귀함
+      const result = await WebBrowser.openAuthSessionAsync(loginUrl, RETURN_URL, {
+        showInRecents: true,
+        controlsColor: "#000000",
+        toolbarColor: "#ffffff",
+      });
+
+      console.log("웹브라우저 결과:", result);
+      // 여기서는 보통 result.type === "success"여도 최종 처리는
+      // 위 useEffect의 Linking 리스너가 받아서 수행함.
+    } catch (error) {
+      console.error("카카오 로그인 오류:", error);
+      Alert.alert("로그인 오류", "카카오 로그인을 실행할 수 없습니다. 다시 시도해주세요.");
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* 앱 로고 */}
-      {/* <Text style={styles.logo}>모구모구</Text> */}
-
       {/* 중앙 이미지 */}
       <Image
         source={require("../../assets/cart.png")}
@@ -77,18 +119,14 @@ export default function LoginScreen({ setIsLoggedIn, navigation }: Props) {
         <Text style={styles.kakaoText}>카카오로 로그인</Text>
       </TouchableOpacity>
 
-      {/* ➕ 바로 메인 화면 이동 버튼 */}
-    <TouchableOpacity
-      style={[styles.kakaoBtn]} // 회색 버튼
-      onPress={() => {
-        // 로그인 체크를 건너뛰고 메인탭(HomeScreen)으로 이동
-        setIsLoggedIn(true);
-      }}
-    >
-      <Text style={styles.kakaoText}>메인 화면으로→</Text>
-    </TouchableOpacity>
+      {/* ➕ 테스트용: 바로 메인 이동 */}
+      <TouchableOpacity
+        style={[styles.kakaoBtn, { backgroundColor: "#ddd" }]}
+        onPress={() => setIsLoggedIn(true)}
+      >
+        <Text style={styles.kakaoText}>메인 화면으로→</Text>
+      </TouchableOpacity>
 
-      {/* 하단 안내 */}
       <Text style={styles.footer}>
         로그인 시 이용약관과 개인정보처리방침에 동의합니다
       </Text>
@@ -97,13 +135,7 @@ export default function LoginScreen({ setIsLoggedIn, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  logo: { fontSize: 36, fontWeight: "bold", marginBottom: 20, color: "#e91e63" },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#fff" },
   image: { width: 250, height: 250, marginBottom: 40 },
   kakaoBtn: {
     backgroundColor: "#FEE500",
@@ -113,11 +145,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   kakaoText: { color: "#000", fontSize: 16, fontWeight: "bold" },
-  footer: {
-    fontSize: 12,
-    color: "#666",
-    textAlign: "center",
-    marginTop: 40,
-    paddingHorizontal: 20,
-  },
+  footer: { fontSize: 12, color: "#666", textAlign: "center", marginTop: 40, paddingHorizontal: 20 },
 });

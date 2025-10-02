@@ -15,6 +15,11 @@ export type RootStackParamList = {
   Login: undefined;
   SignupWizard: undefined;
   MainTabs: undefined;
+  Home: {
+    selectedAddress?: string;
+    addressLabel?: string;
+  } | undefined;
+  Address: undefined;
 };
 
 export type RootStackNavigationProp = NavigationProp<RootStackParamList>;

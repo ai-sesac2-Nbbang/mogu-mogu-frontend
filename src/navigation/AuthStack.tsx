@@ -1,35 +1,52 @@
-// src/navigation/AuthStack.tsx
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../screens/LoginScreen";
 import SignupWizardScreen from "../screens/SignupWizardScreen";
-import MainTabs from "./MainTabs";
 
-import type { RootStackParamList } from "../types/navigation";
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-type Props = {
-  setIsLoggedIn: (value: boolean) => void;
+type AuthStackParamList = {
+  Login: undefined;
+  Onboarding: undefined;
 };
 
-export default function AuthStack({ setIsLoggedIn }: Props) {
+const Stack = createStackNavigator<AuthStackParamList>();
+
+export default function AuthStack({
+  setIsLoggedIn,
+  needOnboarding,
+  setNeedOnboarding,
+}: {
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean | null>>;
+  needOnboarding: boolean;
+  setNeedOnboarding: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {/* 로그인 */}
-      <Stack.Screen name="Login">
-        {(props) => <LoginScreen {...props} setIsLoggedIn={setIsLoggedIn} />}
-      </Stack.Screen>
-
-      {/* 회원가입 마법사 */}
-      <Stack.Screen name="SignupWizard">
-        {(props) => (
-          <SignupWizardScreen {...props} onComplete={() => setIsLoggedIn(true)} />
-        )}
-      </Stack.Screen>
-
-      {/* 메인 탭 */}
-      <Stack.Screen name="MainTabs" component={MainTabs} />
+      {needOnboarding ? (
+        // ✅ 온보딩 필요 → 온보딩 화면
+        <Stack.Screen name="Onboarding">
+          {(props) => (
+            <SignupWizardScreen
+              {...props}
+              onComplete={() => {
+                // 온보딩 완료 → 메인 탭으로 이동
+                setNeedOnboarding(false);
+                setIsLoggedIn(true);
+              }}
+            />
+          )}
+        </Stack.Screen>
+      ) : (
+        // ✅ 온보딩 필요 없음 → 로그인 화면
+        <Stack.Screen name="Login">
+          {(props) => (
+            <LoginScreen
+              {...props}
+              setIsLoggedIn={setIsLoggedIn}
+              setNeedOnboarding={setNeedOnboarding}
+            />
+          )}
+        </Stack.Screen>
+      )}
     </Stack.Navigator>
   );
 }

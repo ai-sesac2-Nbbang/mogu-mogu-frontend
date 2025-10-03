@@ -8,16 +8,19 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "현재 위치를 기반으로 주소를 검색하기 위해 위치 권한이 필요합니다.",
-        "bundleIdentifier": "com.yourcompany.mogumogu"
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["mogumogu"]
+          }
+        ]
       }
     },
     "android": {
@@ -29,16 +32,32 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "mogumogu",
+              "host": "auth",
+              "pathPrefix": "/kakao"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.mogumogu.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "config": {
+        "hostname": "auth.expo.io",
+        "origin": "https://auth.expo.io"
+      },
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-web-browser", // 카카오 로그인용 웹브라우저 
-      "expo-secure-store"  // JWT 저장용
-    ],
-    "package": "com.yourcompany.mogumogu"
+      "expo-web-browser"
+    ]
   }
 }

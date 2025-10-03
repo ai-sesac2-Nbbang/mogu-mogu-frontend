@@ -7,17 +7,19 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  Image
+  Image,
+  Alert,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import axios from "axios";
+import api from "../utils/api";
 
-const KAKAO_REST_API_KEY: string = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY ?? "";
+const KAKAO_REST_API_KEY: string =
+  process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY ?? "";
 
 interface Props {
-  onComplete: () => void;
+  onComplete: () => void; // ✅ 온보딩 완료 후 호출
 }
 
 export default function SignupWizardScreen({ onComplete }: Props) {
@@ -26,41 +28,27 @@ export default function SignupWizardScreen({ onComplete }: Props) {
     name: "",
     nickname: "",
     phone: "010-",
-    birth: "",
+    birth: "", // YYYY-MM-DD
     gender: "",
     familySize: "",
     address: "",
     markets: [] as string[],
   });
 
-  const [errors, setErrors] = useState({
-    name: "",
-    nickname: "",
-    phone: "",
-    birth: "",
-    address: "",
-  });
-
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [errors, setErrors] = useState<any>({});
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [isAddressSelected, setIsAddressSelected] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ 입력창 refs
+  // refs
   const nameRef = useRef<TextInput>(null);
   const nicknameRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
   const birthRef = useRef<TextInput>(null);
 
-  const validateField = (name: string, value: string) => {
-    if (value.length < 2) {
-      setErrors((prev) => ({ ...prev, [name]: "2글자 이상 입력해주세요." }));
-      return false;
-    }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-    return true;
-  };
-
+  // ✅ 입력 변경 핸들러
   const handleInputChange = (field: string, value: string) => {
     if (field === "phone") {
       let numericValue = value.replace(/[^0-9]/g, "");
@@ -70,7 +58,6 @@ export default function SignupWizardScreen({ onComplete }: Props) {
       if (numericValue.length > 11) {
         numericValue = numericValue.slice(0, 11);
       }
-
       let formatted = numericValue;
       if (numericValue.length > 3 && numericValue.length <= 7) {
         formatted = numericValue.slice(0, 3) + "-" + numericValue.slice(3);
@@ -82,612 +69,241 @@ export default function SignupWizardScreen({ onComplete }: Props) {
           "-" +
           numericValue.slice(7);
       }
-
       setFormData({ ...formData, phone: formatted });
       return;
     }
-
     setFormData({ ...formData, [field]: value });
-    if (field === "name" || field === "nickname") {
-      validateField(field, value);
-    }
   };
 
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-
-  const handleConfirm = (date: Date) => {
-    const formattedDate = moment(date).format("YYYY.MM.DD");
-    setFormData({ ...formData, birth: formattedDate });
-    hideDatePicker();
-  };
-
-  const toggleMarket = (market: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      markets: prev.markets.includes(market)
-        ? prev.markets.filter((m) => m !== market)
-        : [...prev.markets, market],
-    }));
+  // ✅ 생일 선택
+  const handleConfirmDate = (date: Date) => {
+    const formatted = moment(date).format("YYYY-MM-DD");
+    setFormData({ ...formData, birth: formatted });
+    setDatePickerVisibility(false);
   };
 
   // ✅ 주소 검색 (카카오 API)
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  // 주소 검색 상태 추가
-  const [isAddressSelected, setIsAddressSelected] = useState(false);
-
-const searchAddress = async (text: string) => {
-  setQuery(text);
-  setIsAddressSelected(false);
-
-  if (text.trim().length < 2) {
-    setResults([]);
-    return;
-  }
-
-  try {
-    const response = await axios.get(
-      "https://dapi.kakao.com/v2/local/search/address.json",
-      {
-        params: { query: text },
-        headers: {
-          Authorization: `KakaoAK ${KAKAO_REST_API_KEY}`, // ✅ REST API 키
-        },
-      }
-    );
-
-    if (response.data?.documents?.length > 0) {
-      setResults(response.data.documents);
-    } else {
+  const searchAddress = async (text: string) => {
+    if (text.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    try {
+      const res = await axios.get(
+        "https://dapi.kakao.com/v2/local/search/address.json",
+        {
+          params: { query: text },
+          headers: { Authorization: `KakaoAK ${KAKAO_REST_API_KEY}` },
+        }
+      );
+      setResults(res.data?.documents || []);
+    } catch (e) {
+      console.error("주소 검색 오류", e);
       setResults([]);
     }
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        "주소 검색 에러:",
-        error.response?.data || error.message
-      );
-    } else {
-      console.error("예상치 못한 에러:", error);
-    }
-    setResults([]);
-  }
-};
-
-
-  // ✅ 입력값 검증 함수
-  const validateStep = () => {
-    if (step === 1) {
-      if (!formData.name || formData.name.length < 2) {
-        setErrors((prev) => ({ ...prev, name: "이름은 2글자 이상 입력해주세요." }));
-        nameRef.current?.focus();
-        return false;
-      }
-      if (!formData.nickname || formData.nickname.length < 2) {
-        setErrors((prev) => ({ ...prev, nickname: "닉네임은 2글자 이상 입력해주세요." }));
-        nicknameRef.current?.focus();
-        return false;
-      }
-      if (!formData.phone || formData.phone.length < 13) {
-        setErrors((prev) => ({ ...prev, phone: "전화번호를 올바르게 입력해주세요." }));
-        phoneRef.current?.focus();
-        return false;
-      }
-      if (!formData.birth) {
-        setErrors((prev) => ({ ...prev, birth: "생년월일을 입력해주세요." }));
-        birthRef.current?.focus();
-        return false;
-      }
-      if (!formData.gender) return false;
-      if (!formData.familySize) return false;
-    }
-    if (step === 2 && selectedInterests.length === 0) return false;
-    if (step === 3 && !isAddressSelected) {
-      setErrors((prev) => ({ 
-        ...prev, 
-        address: "주소를 선택해주세요." 
-      }));
-      return false;
-    }
-    if (step === 4 && formData.markets.length === 0) return false;
-
-    return true;
   };
 
+  // ✅ 온보딩 완료 → 서버 저장
+  const handleOnboardingComplete = async () => {
+    try {
+      setLoading(true);
+      const res = await api.patch("/api/users/me", {
+        name: formData.name,
+        phone_number: formData.phone,
+        gender: formData.gender,
+        household_size: formData.familySize, // Enum: 1인 / 2인 / 3인 / 4인_이상
+        nickname: formData.nickname,
+        birth_date: formData.birth, // YYYY-MM-DD
+        wish_spots: formData.address,
+        interested_categories: selectedInterests,
+        wish_markets: formData.markets,
+      });
+
+      if (res.data?.status === "active") {
+        Alert.alert("가입 완료", "온보딩을 마쳤습니다!", [
+          { text: "확인", onPress: () => onComplete() },
+        ]);
+      } else {
+        Alert.alert("알림", "입력값이 부족합니다. 다시 확인해주세요.");
+      }
+    } catch (error: any) {
+      console.error("온보딩 저장 실패:", error.response?.data || error.message);
+      Alert.alert("에러", "가입 정보를 저장하는 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ 다음 단계
   const handleNext = async () => {
-    if (!validateStep()) return;
-    
     if (step < 4) {
       setStep(step + 1);
     } else {
-      // 가입 정보 확인 모달 표시
-      setShowCompleteModal(true);
+      await handleOnboardingComplete();
     }
   };
 
-  const handlePrev = () => {
-    if (step > 1) setStep(step - 1);
-  };
+  const handlePrev = () => step > 1 && setStep(step - 1);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* STEP Indicator */}
-      <View style={[styles.header, { marginTop: "5%" }]}>
-        <View style={styles.stepIndicator}>
-          {[1, 2, 3, 4].map((s) => (
-            <View key={s} style={styles.stepWrapper}>
-              <Text style={styles.stepNumber}>{s}</Text>
-              <Text style={[styles.stepDot, step === s && styles.stepActive]}>●</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={styles.headerTitle}>
-          {step === 1
-            ? "개인정보 입력"
-            : step === 2
-            ? "관심상품 설정"
-            : step === 3
-            ? "위시스팟"
-            : "위시 마켓"}
-        </Text>
-      </View>
+      <Text style={styles.title}>
+        {step === 1
+          ? "개인정보 입력"
+          : step === 2
+          ? "관심상품 선택"
+          : step === 3
+          ? "위시스팟 설정"
+          : "위시 마켓 선택"}
+      </Text>
 
       {/* STEP 1: 개인정보 */}
       {step === 1 && (
-        <View style={styles.form}>
-          {/* 이름 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>이름</Text>
+        <View>
+          <TextInput
+            ref={nameRef}
+            placeholder="이름"
+            style={styles.input}
+            value={formData.name}
+            onChangeText={(t) => handleInputChange("name", t)}
+          />
+          <TextInput
+            ref={nicknameRef}
+            placeholder="닉네임"
+            style={styles.input}
+            value={formData.nickname}
+            onChangeText={(t) => handleInputChange("nickname", t)}
+          />
+          <TextInput
+            ref={phoneRef}
+            placeholder="전화번호"
+            keyboardType="numeric"
+            style={styles.input}
+            value={formData.phone}
+            onChangeText={(t) => handleInputChange("phone", t)}
+          />
+          <TouchableOpacity onPress={() => setDatePickerVisibility(true)}>
             <TextInput
-              ref={nameRef}
-              style={[styles.input, errors.name ? styles.inputError : null]}
-              placeholder="이름을 입력해 주세요"
-              value={formData.name}
-              onChangeText={(text) => handleInputChange("name", text)}
+              ref={birthRef}
+              placeholder="생년월일 YYYY-MM-DD"
+              style={styles.input}
+              value={formData.birth}
+              editable={false}
             />
-            {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
-          </View>
-
-          {/* 닉네임 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>닉네임</Text>
-            <TextInput
-              ref={nicknameRef}
-              style={[styles.input, errors.nickname ? styles.inputError : null]}
-              placeholder="사용하실 닉네임"
-              value={formData.nickname}
-              onChangeText={(text) => handleInputChange("nickname", text)}
-            />
-            {errors.nickname ? <Text style={styles.errorText}>{errors.nickname}</Text> : null}
-          </View>
-
-          {/* 전화번호 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>전화번호</Text>
-            <TextInput
-              ref={phoneRef}
-              style={[styles.input, errors.phone ? styles.inputError : null]}
-              keyboardType="numeric"
-              placeholder="010-0000-0000"
-              value={formData.phone}
-              onChangeText={(text) => handleInputChange("phone", text)}
-              maxLength={13}
-            />
-            {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
-          </View>
-
-          {/* 생년월일 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>생년월일</Text>
-            <TouchableOpacity onPress={showDatePicker}>
-              <TextInput
-                ref={birthRef}
-                style={[styles.input, errors.birth ? styles.inputError : null]}
-                placeholder="ex) 1998.01.01"
-                value={formData.birth}
-                editable={false}
-              />
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={isDatePickerVisible}
-              mode="date"
-              onConfirm={handleConfirm}
-              onCancel={hideDatePicker}
-              date={new Date(1998, 0, 1)}
-              maximumDate={new Date()}
-            />
-            {errors.birth ? <Text style={styles.errorText}>{errors.birth}</Text> : null}
-          </View>
-
-          {/* 성별 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>성별</Text>
-            <View style={styles.genderButtons}>
-              {["남자", "여자"].map((gender) => (
-                <TouchableOpacity
-                  key={gender}
-                  style={[
-                    styles.genderButton,
-                    formData.gender === gender && styles.genderButtonSelected,
-                  ]}
-                  onPress={() => setFormData({ ...formData, gender })}
-                >
-                  <Text
-                    style={[
-                      styles.genderButtonText,
-                      formData.gender === gender && styles.genderButtonTextSelected,
-                    ]}
-                  >
-                    {gender}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* 가구원 수 */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>가구원 수</Text>
-            <View style={styles.familyButtons}>
-              {["1인", "2인", "3인", "4인 이상"].map((size) => (
-                <TouchableOpacity
-                  key={size}
-                  style={[
-                    styles.familyButton,
-                    formData.familySize === size && styles.familyButtonSelected,
-                  ]}
-                  onPress={() => setFormData({ ...formData, familySize: size })}
-                >
-                  <Text
-                    style={[
-                      styles.familyButtonText,
-                      formData.familySize === size && { color: "#fff" },
-                    ]}
-                  >
-                    {size}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          </TouchableOpacity>
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="date"
+            onConfirm={handleConfirmDate}
+            onCancel={() => setDatePickerVisibility(false)}
+          />
         </View>
       )}
 
       {/* STEP 2: 관심상품 */}
       {step === 2 && (
-        <View style={styles.form}>
-          <Text style={styles.label}>관심상품을 선택하세요. (중복 가능)</Text>
-          <View style={styles.interestGrid}>
-            {[ 
-              { id: "1", name: "생필품류", icon: "🧴" },
-              { id: "2", name: "식품/건강식품", icon: "🥗" },
-              { id: "3", name: "화장품류", icon: "💄" },
-              { id: "4", name: "뷰티소품류", icon: "💅" },
-            ].map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.interestButton,
-                  selectedInterests.includes(item.id) && styles.interestButtonSelected,
-                ]}
-                onPress={() =>
-                  setSelectedInterests((prev) =>
-                    prev.includes(item.id)
-                      ? prev.filter((id) => id !== item.id)
-                      : [...prev, item.id]
-                  )
-                }
-              >
-                <Text style={styles.interestIcon}>{item.icon}</Text>
-                <Text
-                  style={[
-                    styles.interestText,
-                    selectedInterests.includes(item.id) && styles.interestTextSelected,
-                  ]}
-                >
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <View>
+          <Text>관심상품을 선택하세요</Text>
+          {["생필품류", "식품/건강식품", "화장품류", "뷰티소품류"].map((c) => (
+            <TouchableOpacity
+              key={c}
+              style={styles.choiceBtn}
+              onPress={() =>
+                setSelectedInterests((prev) =>
+                  prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+                )
+              }
+            >
+              <Text>{c}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       )}
 
-      {/* STEP 3: 위시스팟 (주소 자동완성) */}
+      {/* STEP 3: 위시스팟 */}
       {step === 3 && (
-        <View style={styles.form}>
-          <Text style={styles.label}>위시스팟 주소 입력</Text>
+        <View>
           <TextInput
-            style={[styles.input, errors.address ? styles.inputError : null]}
-            placeholder="도로명 주소를 입력하세요"
-            value={query}
+            placeholder="주소 검색"
+            style={styles.input}
             onChangeText={searchAddress}
           />
-          <View style={styles.addressListContainer}>
-            {results.map((item, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={styles.addressItem}
-                onPress={() => {
-                  setFormData({ ...formData, address: item.address_name });
-                  setQuery(item.address_name);
-                  setResults([]);
-                  setIsAddressSelected(true); // 주소 선택 완료
-                  setErrors((prev) => ({ ...prev, address: "" })); // 에러 메시지 제거
-                }}
-              >
-                <Text style={styles.addressText}>{item.address_name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {errors.address ? <Text style={styles.errorText}>{errors.address}</Text> : null}
+          {results.map((r, idx) => (
+            <TouchableOpacity
+              key={idx}
+              onPress={() => {
+                setFormData({ ...formData, address: r.address_name });
+                setIsAddressSelected(true);
+                setResults([]);
+              }}
+            >
+              <Text>{r.address_name}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       )}
 
       {/* STEP 4: 위시마켓 */}
-{step === 4 && (
-  <View style={styles.form}>
-    <Text style={styles.label}>위시 마켓을 선택하세요</Text>
-
-    {/* 🖼️ 이미지 매핑 */}
-    {/*
-      public/assets 폴더에 예를 들어 costco.png, emart.png 등 넣어두세요.
-      expo는 require 방식으로 불러와야 하므로 아래처럼 매핑합니다.
-    */}
-    {(() => {
-      const marketImages: { [key: string]: any } = {
-        "코스트코": require("../../assets/markets/costco.png"),
-        "이마트": require("../../assets/markets/emart.png"),
-        "트레이더스": require("../../assets/markets/traders.png"),
-        "편의점": require("../../assets/markets/convenience.png"),
-        "홈플러스": require("../../assets/markets/homeplus.png"),
-        "동네마트": require("../../assets/markets/localmart.png"),
-        "노브랜드": require("../../assets/markets/nobrand.png"),
-        "전통시장": require("../../assets/markets/traditional.png"),
-        "하이마트": require("../../assets/markets/himart.png"),
-        "기타": require("../../assets/markets/etc.png"),
-      };
-
-      return (
-        <View style={styles.marketGrid}>
-          {Object.keys(marketImages).map((market) => (
+      {step === 4 && (
+        <View>
+          <Text>위시마켓 선택</Text>
+          {["코스트코", "이마트", "트레이더스"].map((m) => (
             <TouchableOpacity
-              key={market}
-              style={[
-                styles.marketButton,
-                formData.markets.includes(market) && styles.marketButtonSelected,
-              ]}
-              onPress={() => toggleMarket(market)}
+              key={m}
+              style={styles.choiceBtn}
+              onPress={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  markets: prev.markets.includes(m)
+                    ? prev.markets.filter((x) => x !== m)
+                    : [...prev.markets, m],
+                }))
+              }
             >
-              {/* 🖼️ 이미지 추가 */}
-              <View style={{ alignItems: "center" }}>
-                <Image
-                  source={marketImages[market]}
-                  style={{ width: 40, height: 40, marginBottom: 8 }}
-                  resizeMode="contain"
-                />
-                <Text
-                  style={[
-                    styles.marketText,
-                    formData.markets.includes(market) && styles.marketTextSelected,
-                  ]}
-                >
-                  {market}
-                </Text>
-              </View>
+              <Text>{m}</Text>
             </TouchableOpacity>
           ))}
         </View>
-      );
-    })()}
-  </View>
-)}
-
+      )}
 
       {/* 버튼 */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View style={{ flexDirection: "row", marginTop: 20 }}>
         {step > 1 && (
-          <TouchableOpacity
-            style={[styles.nextBtn, { flex: 1, marginRight: 10 }]}
-            onPress={handlePrev}
-          >
-            <Text style={styles.nextText}>이전</Text>
+          <TouchableOpacity style={styles.btn} onPress={handlePrev}>
+            <Text style={styles.btnText}>이전</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={[styles.nextBtn, { flex: 1, marginLeft: step > 1 ? 10 : 0 }]}
-          onPress={handleNext}
-        >
-          <Text style={styles.nextText}>{step < 4 ? "다음" : "완료"}</Text>
+        <TouchableOpacity style={styles.btn} onPress={handleNext} disabled={loading}>
+          <Text style={styles.btnText}>{loading ? "저장 중..." : step < 4 ? "다음" : "완료"}</Text>
         </TouchableOpacity>
       </View>
-
-      {/* 가입 완료 모달 */}
-      <Modal visible={showCompleteModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalIcon}>✅</Text>
-            <Text style={styles.modalText}>가입이 완료되었습니다!</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setShowCompleteModal(false);
-                setShowInfoModal(true); // 가입 정보 확인 모달 표시
-              }}
-            >
-              <Text style={styles.modalButtonText}>확인</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* 가입 정보 확인 모달 */}
-      <Modal visible={showInfoModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { width: '80%' }]}>
-            <Text style={styles.modalText}>내 가입 정보</Text>
-            <View style={{ marginTop: 10, width: '100%' }}>
-              <Text>이름: {formData.name}</Text>
-              <Text>닉네임: {formData.nickname}</Text>
-              <Text>전화번호: {formData.phone}</Text>
-              <Text>생년월일: {formData.birth}</Text>
-              <Text>성별: {formData.gender}</Text>
-              <Text>가구원: {formData.familySize}</Text>
-              <Text>주소: {formData.address}</Text>
-              <Text>관심상품: {selectedInterests.join(", ")}</Text>
-              <Text>위시마켓: {formData.markets.join(", ")}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setShowInfoModal(false);
-                onComplete();
-              }}
-            >
-              <Text style={styles.modalButtonText}>시작하기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: "#fff", padding: 20 },
-  header: { marginBottom: 30 },
-  stepIndicator: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
-  stepWrapper: { alignItems: "center", marginHorizontal: 10 },
-  stepNumber: { fontSize: 12, color: "#666", marginBottom: 5 },
-  stepDot: { fontSize: 20, color: "#ddd" },
-  stepActive: { color: "#e91e63" },
-  headerTitle: { fontSize: 24, fontWeight: "bold", textAlign: "center" },
-  form: { paddingHorizontal: 20 },
-  inputGroup: { marginBottom: 10 },
-  label: { fontSize: 14, color: "#333", marginBottom: 8 },
+  container: { flexGrow: 1, padding: 20 },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20 },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",
+    padding: 10,
     borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  inputError: { borderColor: "#ff0000", borderWidth: 2 },
-  errorText: { color: "#ff0000", fontSize: 12, marginTop: 5 },
-  genderButtons: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
-  genderButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 15,
-    alignItems: "center",
-    margin: 5,
-  },
-  genderButtonSelected: { backgroundColor: "#e91e63", borderColor: "#e91e63" },
-  genderButtonText: { color: "#666", fontSize: 16 },
-  genderButtonTextSelected: { color: "#fff" },
-  familyButtons: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  familyButton: {
-    flex: 1,
-    minWidth: "45%",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 15,
-    alignItems: "center",
-  },
-  familyButtonSelected: { backgroundColor: "#e91e63", borderColor: "#e91e63" },
-  familyButtonText: { color: "#666", fontSize: 16 },
-  interestGrid: { flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 20 },
-  interestButton: {
-    width: "47%",
-    backgroundColor: "#f8f8f8",
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  interestButtonSelected: { borderColor: "#e91e63", backgroundColor: "#fff" },
-  interestIcon: { fontSize: 28, marginBottom: 8 },
-  interestText: { fontSize: 14, color: "#666", fontWeight: "500" },
-  interestTextSelected: { color: "#e91e63", fontWeight: "bold" },
-  marketGrid: { flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 20 },
-  marketButton: {
-    width: "30%",
-    backgroundColor: "#f8f8f8",
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  marketButtonSelected: { borderColor: "#e91e63", backgroundColor: "#fff" },
-  marketText: { fontSize: 14, color: "#666", fontWeight: "500" },
-  marketTextSelected: { color: "#e91e63", fontWeight: "bold" },
-  nextBtn: {
-    backgroundColor: "#e91e63",
-    paddingVertical: 15,
-    borderRadius: 30,
-    marginTop: 10,
-    marginHorizontal: 20,
-  },
-  nextText: { color: "#fff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
-  item: { padding: 12, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  itemText: { fontSize: 14, color: "#333" },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalBox: {
-    width: 280,
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  modalIcon: { fontSize: 40, alignSelf: "center", marginBottom: 10 },
-  modalText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    alignSelf: "center",
     marginBottom: 10,
   },
-  modalButton: {
+  btn: {
+    flex: 1,
     backgroundColor: "#e91e63",
-    paddingVertical: 12,
-    borderRadius: 25,
-    marginTop: 20,
-    alignSelf: "center",
-    width: "50%",
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  addressListContainer: {
-    maxHeight: 500,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    padding: 15,
+    marginHorizontal: 5,
     borderRadius: 8,
-    marginTop: 5,
-    backgroundColor: "#fff",
   },
-  addressItem: {
+  btnText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
+  choiceBtn: {
+    borderWidth: 1,
+    borderColor: "#ccc",
     padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  addressText: {
-    fontSize: 14,
-    color: "#333",
+    borderRadius: 8,
+    marginVertical: 5,
   },
 });

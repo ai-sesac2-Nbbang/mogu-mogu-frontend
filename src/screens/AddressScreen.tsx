@@ -43,14 +43,44 @@ export default function AddressScreen({ navigation }: Props) {
   const route = useRoute<AddressScreenRouteProp>();
   const currentSelected = route.params?.selectedAddress; // ✅ 홈에서 넘어온 현재 선택된 주소
 
-  const [savedAddresses] = useState<Address[]>([
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([
     { id: "1", label: "우리집", detail: "서울 마포구 백범로 31길 21 9층" },
     { id: "2", label: "회사", detail: "서울 마포구 백범로 31길 21 9층" },
   ]);
 
+  // 데이터베이스에서 주소 목록 가져오기 (주석 처리됨)
+  /*
+  const fetchSavedAddresses = async () => {
+    try {
+      // API 호출하여 사용자의 저장된 주소 목록을 가져옴
+      const response = await axios.get('/api/addresses', {
+        headers: {
+          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+        },
+      });
+      
+      if (response.data.success) {
+        setSavedAddresses(response.data.addresses);
+      }
+    } catch (error) {
+      console.error('주소 목록 조회 실패:', error);
+    }
+  };
+
+  // 컴포넌트 마운트 시 주소 목록 로드
+  useEffect(() => {
+    fetchSavedAddresses();
+  }, []);
+  */
+
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<NormalizedAddress[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // 주소 삭제 함수
+  const deleteAddress = (addressId: string) => {
+    setSavedAddresses(prev => prev.filter(address => address.id !== addressId));
+  };
 
   // ✅ 주소 검색
   const searchAddress = async (text: string) => {
@@ -122,6 +152,21 @@ export default function AddressScreen({ navigation }: Props) {
         const addressText = roadAddress?.address_name || address?.address_name;
         
         if (addressText) {
+          // 주소가 이미 저장된 주소 목록에 있는지 확인
+          const isAddressExists = savedAddresses.some(
+            addr => addr.detail === addressText
+          );
+
+          if (!isAddressExists) {
+            // 주소가 없으면 자동으로 추가
+            const newAddress: Address = {
+              id: Date.now().toString(),
+              label: "현재 위치",
+              detail: addressText,
+            };
+            setSavedAddresses(prev => [...prev, newAddress]);
+          }
+
           setQuery(addressText);
           // 주소 검색 실행
           searchAddress(addressText);
@@ -163,30 +208,38 @@ export default function AddressScreen({ navigation }: Props) {
     } else {
       const isCurrent = currentSelected === item.label || currentSelected === item.detail;
       return (
-        <TouchableOpacity
-          style={styles.addressItem}
-          onPress={() =>
-            navigation.navigate("Home", {
-              selectedAddress: item.detail,
-              addressLabel: item.label,
-            })
-          }
-        >
-          <Ionicons
-            name={item.label === "우리집" ? "home" : "business"}
-            size={20}
-            color="#333"
-          />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={styles.addressLabel}>
-              {item.label}{" "}
-              {isCurrent && (
-                <Text style={styles.currentTag}>현재 설정된 주소</Text> // ✅ 현재 선택된 주소 라벨
-              )}
-            </Text>
-            <Text style={styles.addressDetail}>{item.detail}</Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.addressItem}>
+          <TouchableOpacity
+            style={styles.addressContent}
+            onPress={() =>
+              navigation.navigate("Home", {
+                selectedAddress: item.detail,
+                addressLabel: item.label,
+              })
+            }
+          >
+            <Ionicons
+              name={item.label === "우리집" ? "home" : "business"}
+              size={20}
+              color="#333"
+            />
+            <View style={{ marginLeft: 10, flex: 1 }}>
+              <Text style={styles.addressLabel}>
+                {item.label}{" "}
+                {isCurrent && (
+                  <Text style={styles.currentTag}>현재 설정된 주소</Text> // ✅ 현재 선택된 주소 라벨
+                )}
+              </Text>
+              <Text style={styles.addressDetail}>{item.detail}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => deleteAddress(item.id)}
+          >
+            <Ionicons name="trash-outline" size={18} color="#e91e63" />
+          </TouchableOpacity>
+        </View>
       );
     }
   };
@@ -256,6 +309,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+  addressContent: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flex: 1,
+  },
+  deleteButton: {
+    padding: 8,
+    marginLeft: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
   addressLabel: { fontSize: 15, fontWeight: "bold" },
   addressDetail: { fontSize: 13, color: "#666", marginTop: 2 },

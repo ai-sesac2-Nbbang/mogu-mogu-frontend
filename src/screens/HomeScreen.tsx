@@ -13,6 +13,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RouteProp } from '@react-navigation/native';
 import { HomeStackParamList } from "../types/navigation";
+import axios from "axios";
 
 // 네비게이션 타입 정의
 type HomeScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
@@ -30,8 +31,47 @@ export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState("거리순");
   const [likedItems, setLikedItems] = useState<number[]>([]);
   const [selectedAddress, setSelectedAddress] = useState("우리집");
+  const [products, setProducts] = useState<Product[]>([
+    { id: 1, name: "물티슈 10롤", price: "9,170원", participants: "1/3", image: require("../../assets/products/tissue.png") },
+    { id: 2, name: "2080 칫솔 10개", price: "6,420원", participants: "0/2", image: require("../../assets/products/toothbrush.png") },
+    { id: 3, name: "도브 샴푸 리필", price: "5,250원", participants: "5/6", image: require("../../assets/products/shampoo.png") },
+    { id: 4, name: "물티슈 10롤", price: "9,170원", participants: "1/3", image: require("../../assets/products/tissue.png") },
+    { id: 5, name: "2080 칫솔 10개", price: "6,420원", participants: "0/2", image: require("../../assets/products/toothbrush.png") },
+    { id: 6, name: "도브 샴푸 리필", price: "5,250원", participants: "5/6", image: require("../../assets/products/shampoo.png") },
+    { id: 7, name: "물티슈 10롤", price: "9,170원", participants: "1/3", image: require("../../assets/products/tissue.png") },
+    { id: 8, name: "2080 칫솔 10개", price: "6,420원", participants: "0/2", image: require("../../assets/products/toothbrush.png") },
+    { id: 9, name: "도브 샴푸 리필", price: "5,250원", participants: "5/6", image: require("../../assets/products/shampoo.png") },
+  ]);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute<HomeScreenRouteProp>();
+
+  // 데이터베이스에서 상품 목록 가져오기 (주석 처리됨)
+  /*
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('/api/products', {
+        params: {
+          filter: selectedFilter,
+          address: selectedAddress,
+        },
+        headers: {
+          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+        },
+      });
+      
+      if (response.data.success) {
+        setProducts(response.data.products);
+      }
+    } catch (error) {
+      console.error('상품 목록 조회 실패:', error);
+    }
+  };
+
+  // 컴포넌트 마운트 시 또는 필터/주소 변경 시 상품 목록 로드
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedFilter, selectedAddress]);
+  */
 
   useEffect(() => {
     if (route.params?.selectedAddress) {
@@ -40,12 +80,6 @@ export default function HomeScreen() {
     }
   }, [route.params]);
 
-  const products = [
-    { id: 1, name: "2080 칫솔 10개", price: "6,420원", participants: "0/2", image: require("../../assets/products/toothbrush.png") },
-    { id: 2, name: "도브 샴푸 리필", price: "5,250원", participants: "5/6", image: require("../../assets/products/shampoo.png") },
-    { id: 3, name: "물화장지 10롤", price: "9,170원", participants: "1/3", image: require("../../assets/products/tissue.png") },
-  ];
-
   const toggleLike = (id: number) => {
     setLikedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -53,28 +87,34 @@ export default function HomeScreen() {
   };
 
   const renderItem = ({ item }: { item: Product }) => (
-    <View style={styles.productCard}>
+    <TouchableOpacity 
+      style={styles.productCard}
+      onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+    >
       <Image source={item.image} style={styles.productImage} />
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.productPrice}>{item.price}</Text>
         <Text style={styles.productParticipants}>모구인원 {item.participants}</Text>
       </View>
-      <TouchableOpacity onPress={() => toggleLike(item.id)}>
+      <TouchableOpacity onPress={(e) => {
+        e.stopPropagation();
+        toggleLike(item.id);
+      }}>
         <Ionicons
           name={likedItems.includes(item.id) ? "heart" : "heart-outline"}
           size={22}
           color={likedItems.includes(item.id) ? "#e91e63" : "#999"}
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       {/* 🔹 상단 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigation.navigate('Address')}
         >
           <Text style={styles.location}>{selectedAddress} ▼</Text>
@@ -121,7 +161,10 @@ export default function HomeScreen() {
       />
 
       {/* 🔹 플로팅 버튼 */}
-      <TouchableOpacity style={styles.floatingBtn}>
+      <TouchableOpacity 
+        style={styles.floatingBtn}
+        onPress={() => navigation.navigate('ProductAdd')}
+      >
         <Text style={styles.floatingBtnText}>+ 모구하기</Text>
       </TouchableOpacity>
     </View>

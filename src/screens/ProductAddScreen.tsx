@@ -427,14 +427,14 @@ const generateMinutes = (
                    setErrors((prev) => ({ ...prev, groupCount: false }));
                  }}
                >
-                 <Text
-                   style={[
-                     styles.groupCountButtonText,
-                     groupCount === count && styles.groupCountButtonTextActive,
-                   ]}
-                 >
-                   {count}인
-                 </Text>
+                <Text
+                  style={[
+                    styles.groupCountButtonText,
+                    groupCount === count && styles.groupCountButtonTextActive,
+                  ]}
+                >
+                  {`${count}인`}
+                </Text>
                </TouchableOpacity>
              ))}
            </View>
@@ -451,14 +451,14 @@ const generateMinutes = (
                    setErrors((prev) => ({ ...prev, groupCount: false }));
                  }}
                >
-                 <Text
-                   style={[
-                     styles.groupCountButtonText,
-                     groupCount === count && styles.groupCountButtonTextActive,
-                   ]}
-                 >
-                   {count}인
-                 </Text>
+                <Text
+                  style={[
+                    styles.groupCountButtonText,
+                    groupCount === count && styles.groupCountButtonTextActive,
+                  ]}
+                >
+                  {`${count}인`}
+                </Text>
                </TouchableOpacity>
              ))}
            </View>
@@ -529,7 +529,7 @@ const generateMinutes = (
 
         {/* 수수료율 슬라이더 */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>수수료율: {commissionRate}%</Text>
+          <Text style={styles.label}>{`수수료율: ${commissionRate}%`}</Text>
           <View style={[styles.sliderContainer, errors.commissionRate && styles.errorInput]}>
             <Slider
               style={styles.slider}

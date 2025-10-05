@@ -1,20 +1,16 @@
-import React from "react"; 
+import React from "react";
 import {
   createBottomTabNavigator,
   BottomTabBarProps,
 } from "@react-navigation/bottom-tabs";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-} from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // ✅ 아이콘 추가
+import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // ✅ 이 줄로 바꿔주세요.
 
 // 화면 컴포넌트 import
 import HomeStack from "./HomeStack";
 import MyPageScreen from "../screens/MyPageScreen";
 import MapScreen from "../screens/MapScreen";
+import { ChatbotScreen } from "../screens/ChatbotScreen"; // ✅ 1. 챗봇 화면 불러오기
 
 // LoginScreen에 전달할 props 타입 정의
 interface LoginScreenProps {
@@ -25,6 +21,7 @@ interface LoginScreenProps {
 type RootTabParamList = {
   HomeStack: undefined;
   Map: undefined;
+  Chatbot: undefined; // ✅ 2. 탭 목록에 'Chatbot' 추가하기
   MyPage: undefined;
 };
 
@@ -59,6 +56,11 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
           iconName = isFocused ? "home" : "home-outline";
         } else if (route.name === "Map") {
           iconName = isFocused ? "location" : "location-outline";
+        } else if (route.name === "Chatbot") {
+          // ✅ 3. 챗봇 탭 아이콘 정해주기
+          iconName = isFocused
+            ? "chatbubble-ellipses"
+            : "chatbubble-ellipses-outline";
         } else if (route.name === "MyPage") {
           iconName = isFocused ? "person" : "person-outline";
         }
@@ -96,9 +98,8 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
             ]}
             activeOpacity={0.7}
           >
-            {/* ✅ 아이콘 + 텍스트 함께 표시 */}
-            <Icon
-              name={iconName}
+            <Ionicons
+              name={iconName as any}  //변경
               size={22}
               color={isFocused ? "#1976D2" : "#666"}
               style={{ marginBottom: 2 }}
@@ -135,6 +136,16 @@ export default function MainTabs() {
           headerShown: false,
         }}
       />
+      {/* ✅ 4. 챗봇 화면을 탭에 연결하기 */}
+      <Tab.Screen
+        name="Chatbot"
+        component={ChatbotScreen}
+        options={{
+          tabBarLabel: "챗봇",
+          headerShown: true, // 챗봇 화면 상단에 '챗봇'이라는 제목이 보이게 설정
+          title: "모구모구 봇 🤖", // 헤더에 표시될 제목
+        }}
+      />
       <Tab.Screen
         name="MyPage"
         component={MyPageScreen}
@@ -147,7 +158,7 @@ export default function MainTabs() {
   );
 }
 
-// 스타일
+// 스타일 (기존 코드와 동일)
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
@@ -155,13 +166,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ddd",
-    marginBottom: 40,
+    // marginBottom: 40, // 이 부분은 필요에 따라 조정하세요.
   },
   tabButton: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // borderLeftWidth: 1,
     borderLeftColor: "#ddd",
   },
   noLeftBorder: {

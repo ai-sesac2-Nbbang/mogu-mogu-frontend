@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/Ionicons"; // ✅ 아이콘 추가
 import HomeStack from "./HomeStack";
 import MyPageScreen from "../screens/MyPageScreen";
 import MapScreen from "../screens/MapScreen";
+import MyPageStack from "./MyPageStack"; // MyPageStack import 추가
 
 // LoginScreen에 전달할 props 타입 정의
 interface LoginScreenProps {
@@ -25,7 +26,7 @@ interface LoginScreenProps {
 type RootTabParamList = {
   HomeStack: undefined;
   Map: undefined;
-  MyPage: undefined;
+  MyPageStack: undefined; // MyPage 대신 MyPageStack 사용
 };
 
 // 제네릭으로 탭 네비게이터에 타입 지정
@@ -59,7 +60,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
           iconName = isFocused ? "home" : "home-outline";
         } else if (route.name === "Map") {
           iconName = isFocused ? "location" : "location-outline";
-        } else if (route.name === "MyPage") {
+        } else if (route.name === "MyPageStack") { // MyPage 대신 MyPageStack 사용
           iconName = isFocused ? "person" : "person-outline";
         }
 
@@ -136,8 +137,8 @@ export default function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="MyPage"
-        component={MyPageScreen}
+        name="MyPageStack" // MyPage 대신 MyPageStack 사용
+        component={MyPageStack} // MyPageScreen 대신 MyPageStack 사용
         options={{
           tabBarLabel: "마이페이지",
           headerShown: false,

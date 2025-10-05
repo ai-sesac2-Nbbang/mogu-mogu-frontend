@@ -73,6 +73,133 @@ export default function ProductDetailScreen({ navigation }: Props) {
   const [showMoguModal, setShowMoguModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
+  // TODO: DB에서 상품 상세 정보 불러오기
+  /*
+  useEffect(() => {
+    const fetchProductDetail = async () => {
+      try {
+        const response = await axios.get(`/api/products/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+          },
+        });
+        
+        if (response.data.success) {
+          const productData = response.data.product;
+          setProduct({
+            id: productData.id,
+            name: productData.name,
+            originalPrice: productData.originalPrice,
+            groupPrice: productData.groupPrice,
+            currentParticipants: productData.currentParticipants,
+            maxParticipants: productData.maxParticipants,
+            perPersonPrice: productData.perPersonPrice,
+            meetupDate: productData.meetupDate,
+            meetupLocation: productData.meetupLocation,
+            meetupTime: productData.meetupTime,
+            image: { uri: productData.imageUrl },
+            description: productData.description,
+            deliveryInfo: productData.deliveryInfo,
+            endDate: productData.endDate,
+            category: productData.category,
+          });
+          setIsLiked(productData.isLiked);
+          setIsJoined(productData.isJoined);
+        }
+      } catch (error) {
+        console.error('상품 상세 정보 조회 실패:', error);
+        Alert.alert('오류', '상품 정보를 불러올 수 없습니다.');
+      }
+    };
+    
+    fetchProductDetail();
+  }, [productId]);
+  */
+
+  // 하드코딩: productId에 따른 더미 데이터 매핑
+  useEffect(() => {
+    // 관심 목록에서 온 상품들의 ID (관심 목록에 있는 상품들)
+    const wishlistProductIds = ["1", "2", "3", "4"];
+    
+    const dummyProducts: { [key: string]: ProductDetail } = {
+      "1": {
+        id: 1,
+        name: "프리미엄 롤화장지 10롤 구매하실 분?",
+        originalPrice: "25,000원",
+        groupPrice: "27,500원",
+        currentParticipants: 1,
+        maxParticipants: 3,
+        perPersonPrice: "9,170원",
+        meetupDate: "2025년 10월 15일",
+        meetupLocation: "공덕역 2번 출구 앞",
+        meetupTime: "오후 2:00",
+        image: require("../../assets/products/tissue.png"),
+        description: "프리미엄 3겹 롤화장지입니다.\n• 부드러운 3겹 프리미엄 화장지\n• 총 30롤, 25,000원\n• 10롤씩 나눠서 거래합니다.\n• 공덕역에서 직거래 예정입니다.",
+        deliveryInfo: "직접 수령",
+        endDate: "2일 뒤",
+        category: "모구 마켓",
+      },
+      "2": {
+        id: 2,
+        name: "삼다수 생수 2L 6병 묶음 구매하실 분?",
+        originalPrice: "8,000원",
+        groupPrice: "9,180원",
+        currentParticipants: 1,
+        maxParticipants: 2,
+        perPersonPrice: "4,590원",
+        meetupDate: "2025년 10월 16일",
+        meetupLocation: "신촌역 3번 출구",
+        meetupTime: "오후 3:00",
+        image: require("../../assets/products/shampoo.png"),
+        description: "제주 삼다수 2L 생수입니다.\n• 신선한 제주 생수\n• 총 12병, 8,000원\n• 6병씩 나눠서 거래합니다.",
+        deliveryInfo: "직접 수령",
+        endDate: "3일 뒤",
+        category: "모구 마켓",
+      },
+      "3": {
+        id: 3,
+        name: "무항생제 신선 계란 10구 구매하실 분?",
+        originalPrice: "7,500원",
+        groupPrice: "8,400원",
+        currentParticipants: 1,
+        maxParticipants: 3,
+        perPersonPrice: "2,800원",
+        meetupDate: "2025년 10월 17일",
+        meetupLocation: "홍대입구역 9번 출구",
+        meetupTime: "오전 11:00",
+        image: require("../../assets/products/eggs.png"),
+        description: "무항생제 신선 계란입니다.\n• 건강한 무항생제 계란\n• 총 30구, 7,500원\n• 10구씩 나눠서 거래합니다.",
+        deliveryInfo: "직접 수령",
+        endDate: "1일 뒤",
+        category: "모구 마켓",
+      },
+      "4": {
+        id: 4,
+        name: "칫솔 5개입 세트 구매하실 분?",
+        originalPrice: "28,000원",
+        groupPrice: "30,000원",
+        currentParticipants: 2,
+        maxParticipants: 4,
+        perPersonPrice: "7,500원",
+        meetupDate: "2025년 10월 18일",
+        meetupLocation: "강남역 10번 출구",
+        meetupTime: "오후 6:00",
+        image: require("../../assets/products/toothbrush.png"),
+        description: "고급 칫솔 5개입 세트입니다.\n• 부드러운 모질의 칫솔\n• 총 20개, 28,000원\n• 5개씩 나눠서 거래합니다.",
+        deliveryInfo: "직접 수령",
+        endDate: "4일 뒤",
+        category: "모구 마켓",
+      },
+    };
+
+    const selectedProduct = dummyProducts[productId] || dummyProducts["1"];
+    setProduct(selectedProduct);
+    
+    // 관심 목록에 있는 상품이면 좋아요 표시
+    setIsLiked(wishlistProductIds.includes(productId));
+    setIsJoined(false);
+  }, [productId]);
+
   // 사용자 선호 시간대 추천 시스템 (주석 처리됨)
   /*
   const fetchRecommendedTime = async () => {

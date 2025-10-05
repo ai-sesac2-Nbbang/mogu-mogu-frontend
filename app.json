@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "mogumogu", // 딥링크를 위한 스킴 설정
+    "scheme": "mogumogu",
     "name": "mogumogu",
     "slug": "mogumogu",
     "version": "1.0.0",
@@ -8,7 +8,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -18,7 +21,9 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["mogumogu"]
+            "CFBundleURLSchemes": [
+              "mogumogu"
+            ]
           }
         ]
       }
@@ -42,7 +47,10 @@
               "pathPrefix": "/kakao"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "edgeToEdgeEnabled": true,
@@ -57,7 +65,8 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-font"
     ]
   }
 }

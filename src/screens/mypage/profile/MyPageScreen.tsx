@@ -21,7 +21,7 @@ export default function MyPageScreen() {
   const [selectedTab, setSelectedTab] = React.useState<"personal" | "mogujang" | "mogurur">("personal");
   const [userProfile, setUserProfile] = useState({
     nickname: "나찬솔씨", // 기본값
-    profileImage: require("../../assets/cart.png") as ImageSourcePropType, // 모구모구 캐릭터 이미지
+    profileImage: require("../../../../assets/cart.png") as ImageSourcePropType, // 모구모구 캐릭터 이미지
   });
 
   // 배지 상태 관리
@@ -160,19 +160,19 @@ export default function MyPageScreen() {
         if (mockResponse.data) {
           setUserProfile({
             nickname: mockResponse.data.nickname,
-            profileImage: mockResponse.data.profileImageUri ? { uri: mockResponse.data.profileImageUri } : require("../../assets/cart.png"),
+            profileImage: mockResponse.data.profileImageUri ? { uri: mockResponse.data.profileImageUri } : require("../../../../assets/cart.png"),
           });
         } else {
            setUserProfile({
              nickname: "기본 라이언",
-             profileImage: require("../../assets/cart.png"),
+             profileImage: require("../../../../assets/cart.png"),
            });
         }
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         setUserProfile({
           nickname: "에러 발생 라이언",
-          profileImage: require("../../assets/cart.png"),
+          profileImage: require("../../../../assets/cart.png"),
         });
       }
     };
@@ -258,13 +258,13 @@ export default function MyPageScreen() {
   ].filter(Boolean); // null/undefined 제거
 
   const dummySoldProducts = [
-    { id: "1", name: "프리미엄 롤화장지 10롤 구매하실 분?", price: "9,170원", participants: "1/3", image: require("../../assets/products/tissue.png") },
-    { id: "2", name: "삼다수 생수 2L 6병 묶음 구매하실 분?", price: "4,590원", participants: "1/2", image: require("../../assets/products/shampoo.png") },
-    { id: "3", name: "무항생제 신선 계란 10구 구매하실 분?", price: "2,800원", participants: "1/3", image: require("../../assets/products/eggs.png") },
-    { id: "4", name: "추가 상품 1", price: "1,000원", participants: "1/1", image: require("../../assets/products/toothbrush.png") },
+    { id: "1", name: "프리미엄 롤화장지 10롤 구매하실 분?", price: "9,170원", participants: "1/3", image: require("../../../../assets/products/tissue.png") },
+    { id: "2", name: "삼다수 생수 2L 6병 묶음 구매하실 분?", price: "4,590원", participants: "1/2", image: require("../../../../assets/products/shampoo.png") },
+    { id: "3", name: "무항생제 신선 계란 10구 구매하실 분?", price: "2,800원", participants: "1/3", image: require("../../../../assets/products/eggs.png") },
+    { id: "4", name: "추가 상품 1", price: "1,000원", participants: "1/1", image: require("../../../../assets/products/toothbrush.png") },
   ];
   const dummyPurchasedProducts: any[] = [
-    // { id: "1", name: "구매 상품 1", price: "5,000원", participants: "1/1", image: require("../../assets/products/tissue.png") },
+    // { id: "1", name: "구매 상품 1", price: "5,000원", participants: "1/1", image: require("../../../../assets/products/tissue.png") },
   ]; // 비어 있으면 안내 문구 표시
 
   // 좋은 후기와 안 좋은 후기 구분

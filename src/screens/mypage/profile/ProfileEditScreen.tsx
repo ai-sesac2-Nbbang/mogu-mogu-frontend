@@ -279,7 +279,7 @@ const ProfileEditScreen = () => {
         {/* Profile Image Section */}
         <View style={styles.imagePickerContainer}>
           <Image
-            source={profileImage ? { uri: profileImage } : require('../../assets/adaptive-icon.png')}
+            source={profileImage ? { uri: profileImage } : require('../../../../assets/adaptive-icon.png')}
             style={styles.profileImage}
           />
           <TouchableOpacity onPress={handleImagePick} style={styles.changeImageButton}>

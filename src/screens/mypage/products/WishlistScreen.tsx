@@ -51,7 +51,7 @@ const WishlistScreen = () => {
         name: "프리미엄 롤화장지 10롤 구매하실 분?", 
         price: "9,170원", 
         participants: "1/3", 
-        image: require("../../assets/products/tissue.png"),
+        image: require("../../../../assets/products/tissue.png"),
         isLiked: true
       },
       { 
@@ -59,7 +59,7 @@ const WishlistScreen = () => {
         name: "삼다수 생수 2L 6병 묶음 구매하실 분?", 
         price: "4,590원", 
         participants: "1/2", 
-        image: require("../../assets/products/shampoo.png"),
+        image: require("../../../../assets/products/shampoo.png"),
         isLiked: true
       },
       { 
@@ -67,7 +67,7 @@ const WishlistScreen = () => {
         name: "무항생제 신선 계란 10구 구매하실 분?", 
         price: "2,800원", 
         participants: "1/3", 
-        image: require("../../assets/products/eggs.png"),
+        image: require("../../../../assets/products/eggs.png"),
         isLiked: true
       },
       { 
@@ -75,7 +75,7 @@ const WishlistScreen = () => {
         name: "칫솔 5개입 세트 구매하실 분?", 
         price: "7,500원", 
         participants: "2/4", 
-        image: require("../../assets/products/toothbrush.png"),
+        image: require("../../../../assets/products/toothbrush.png"),
         isLiked: true
       },
     ];

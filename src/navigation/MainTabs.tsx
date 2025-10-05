@@ -13,9 +13,8 @@ import Icon from "react-native-vector-icons/Ionicons"; // ✅ 아이콘 추가
 
 // 화면 컴포넌트 import
 import HomeStack from "./HomeStack";
-import MyPageScreen from "../screens/MyPageScreen";
 import MapScreen from "../screens/MapScreen";
-import MyPageStack from "./MyPageStack"; // MyPageStack import 추가
+import MyPageStack from "./MyPageStack";
 
 // LoginScreen에 전달할 props 타입 정의
 interface LoginScreenProps {

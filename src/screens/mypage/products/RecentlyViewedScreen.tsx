@@ -49,7 +49,7 @@ const RecentlyViewedScreen = () => {
         name: "프리미엄 롤화장지 10롤 구매하실 분?", 
         price: "9,170원", 
         participants: "1/3", 
-        image: require("../../assets/products/tissue.png"),
+        image: require("../../../../assets/products/tissue.png"),
         isLiked: true, // 좋아요 표시됨
         viewedAt: "5분 전"
       },
@@ -58,7 +58,7 @@ const RecentlyViewedScreen = () => {
         name: "유기농 바나나 1kg 구매하실 분?", 
         price: "3,500원", 
         participants: "2/3", 
-        image: require("../../assets/products/eggs.png"),
+        image: require("../../../../assets/products/eggs.png"),
         isLiked: false, // 좋아요 안 됨
         viewedAt: "1시간 전"
       },
@@ -67,7 +67,7 @@ const RecentlyViewedScreen = () => {
         name: "삼다수 생수 2L 6병 묶음 구매하실 분?", 
         price: "4,590원", 
         participants: "1/2", 
-        image: require("../../assets/products/shampoo.png"),
+        image: require("../../../../assets/products/shampoo.png"),
         isLiked: true, // 좋아요 표시됨
         viewedAt: "2시간 전"
       },
@@ -76,7 +76,7 @@ const RecentlyViewedScreen = () => {
         name: "주방세제 3개 세트 구매하실 분?", 
         price: "6,200원", 
         participants: "1/4", 
-        image: require("../../assets/products/toothbrush.png"),
+        image: require("../../../../assets/products/toothbrush.png"),
         isLiked: false, // 좋아요 안 됨
         viewedAt: "3시간 전"
       },
@@ -85,7 +85,7 @@ const RecentlyViewedScreen = () => {
         name: "무항생제 신선 계란 10구 구매하실 분?", 
         price: "2,800원", 
         participants: "1/3", 
-        image: require("../../assets/products/eggs.png"),
+        image: require("../../../../assets/products/eggs.png"),
         isLiked: true, // 좋아요 표시됨
         viewedAt: "5시간 전"
       },
@@ -94,7 +94,7 @@ const RecentlyViewedScreen = () => {
         name: "고급 수건 세트 구매하실 분?", 
         price: "8,900원", 
         participants: "2/3", 
-        image: require("../../assets/products/tissue.png"),
+        image: require("../../../../assets/products/tissue.png"),
         isLiked: false, // 좋아요 안 됨
         viewedAt: "어제"
       },

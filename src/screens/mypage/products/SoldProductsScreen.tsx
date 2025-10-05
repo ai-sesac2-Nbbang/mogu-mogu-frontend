@@ -51,7 +51,7 @@ const SoldProductsScreen = () => {
         name: "프리미엄 롤화장지 10롤 구매하실 분?", 
         price: "9,170원", 
         participants: "3/3", 
-        image: require("../../assets/products/tissue.png"),
+        image: require("../../../../assets/products/tissue.png"),
         status: 'completed',
         soldDate: "2025.10.03",
         totalEarnings: "27,510원"
@@ -61,7 +61,7 @@ const SoldProductsScreen = () => {
         name: "삼다수 생수 2L 6병 묶음 구매하실 분?", 
         price: "4,590원", 
         participants: "2/2", 
-        image: require("../../assets/products/shampoo.png"),
+        image: require("../../../../assets/products/shampoo.png"),
         status: 'completed',
         soldDate: "2025.10.02",
         totalEarnings: "9,180원"
@@ -71,7 +71,7 @@ const SoldProductsScreen = () => {
         name: "무항생제 신선 계란 10구 구매하실 분?", 
         price: "2,800원", 
         participants: "2/3", 
-        image: require("../../assets/products/eggs.png"),
+        image: require("../../../../assets/products/eggs.png"),
         status: 'in_progress',
         soldDate: "진행 중",
         totalEarnings: "5,600원"
@@ -81,7 +81,7 @@ const SoldProductsScreen = () => {
         name: "칫솔 5개입 세트 구매하실 분?", 
         price: "7,500원", 
         participants: "4/4", 
-        image: require("../../assets/products/toothbrush.png"),
+        image: require("../../../../assets/products/toothbrush.png"),
         status: 'completed',
         soldDate: "2025.10.01",
         totalEarnings: "30,000원"
@@ -91,7 +91,7 @@ const SoldProductsScreen = () => {
         name: "고급 샴푸 세트 구매하실 분?", 
         price: "5,200원", 
         participants: "1/3", 
-        image: require("../../assets/products/shampoo.png"),
+        image: require("../../../../assets/products/shampoo.png"),
         status: 'in_progress',
         soldDate: "진행 중",
         totalEarnings: "5,200원"
@@ -101,7 +101,7 @@ const SoldProductsScreen = () => {
         name: "주방세제 3개 세트 구매하실 분?", 
         price: "6,200원", 
         participants: "3/3", 
-        image: require("../../assets/products/tissue.png"),
+        image: require("../../../../assets/products/tissue.png"),
         status: 'completed',
         soldDate: "2025.09.30",
         totalEarnings: "18,600원"

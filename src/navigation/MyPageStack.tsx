@@ -1,17 +1,21 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MyPageScreen from '../screens/MyPageScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import ProfileEditScreen from '../screens/ProfileEditScreen';
-import BadgesScreen from '../screens/BadgesScreen';
-import WishlistScreen from '../screens/WishlistScreen';
-import KeywordRegisterScreen from '../screens/KeywordRegisterScreen';
-import RecentlyViewedScreen from '../screens/RecentlyViewedScreen';
-import ReviewsScreen from '../screens/ReviewsScreen';
-import SoldProductsScreen from '../screens/SoldProductsScreen';
-import PurchasedProductsScreen from '../screens/PurchasedProductsScreen';
-import NoticeScreen from '../screens/NoticeScreen';
-import TermsScreen from '../screens/TermsScreen';
+// Profile screens
+import MyPageScreen from '../screens/mypage/profile/MyPageScreen';
+import ProfileEditScreen from '../screens/mypage/profile/ProfileEditScreen';
+import BadgesScreen from '../screens/mypage/profile/BadgesScreen';
+// Settings screens
+import SettingsScreen from '../screens/mypage/settings/SettingsScreen';
+import NoticeScreen from '../screens/mypage/settings/NoticeScreen';
+import TermsScreen from '../screens/mypage/settings/TermsScreen';
+// Products screens
+import WishlistScreen from '../screens/mypage/products/WishlistScreen';
+import KeywordRegisterScreen from '../screens/mypage/products/KeywordRegisterScreen';
+import RecentlyViewedScreen from '../screens/mypage/products/RecentlyViewedScreen';
+import ReviewsScreen from '../screens/mypage/products/ReviewsScreen';
+import SoldProductsScreen from '../screens/mypage/products/SoldProductsScreen';
+import PurchasedProductsScreen from '../screens/mypage/products/PurchasedProductsScreen';
+// Other screens
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 
 const Stack = createNativeStackNavigator();

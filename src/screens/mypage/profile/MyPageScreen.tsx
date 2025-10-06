@@ -417,10 +417,6 @@ export default function MyPageScreen() {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>마이페이지</Text>
         <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate("Settings" as never)}>
           <Ionicons name="settings-outline" size={24} color="black" />
         </TouchableOpacity>
@@ -672,15 +668,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     paddingHorizontal: 15,
     paddingTop: 50,
     paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
   },
-  backButton: { padding: 5 },
-  headerTitle: { fontSize: 18, fontWeight: "bold" },
   settingsButton: { padding: 5 },
   profileSection: {
     alignItems: "center",

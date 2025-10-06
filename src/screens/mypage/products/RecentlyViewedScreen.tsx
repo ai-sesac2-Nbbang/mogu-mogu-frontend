@@ -141,6 +141,21 @@ const RecentlyViewedScreen = () => {
     );
   };
 
+  // 가격을 1/n으로 계산 (모구장 제외)
+  const calculatePricePerPerson = (priceString: string, participants: string) => {
+    // "9,170원" -> 9170
+    const price = parseInt(priceString.replace(/,/g, '').replace('원', ''));
+    
+    // "1/3" -> 전체 인원 3명
+    const totalCount = parseInt(participants.split('/')[1]);
+    
+    // 모구장 제외한 인원으로 나눔 (n-1)
+    const pricePerPerson = Math.round(price / (totalCount - 1));
+    
+    // 숫자를 천 단위 콤마로 포맷팅
+    return pricePerPerson.toLocaleString() + '원';
+  };
+
   // 좋아요 해제 확인
   const confirmRemoveLike = async () => {
     if (!selectedProductId) return;
@@ -184,11 +199,11 @@ const RecentlyViewedScreen = () => {
       <Image source={item.image} style={styles.productImage} />
       <View style={styles.productInfo}>
         <Text style={styles.productName} numberOfLines={2}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price}</Text>
+        <Text style={styles.productPrice}>{calculatePricePerPerson(item.price, item.participants)}</Text>
         <View style={styles.bottomRow}>
           <View style={styles.participantsContainer}>
             <Ionicons name="people" size={16} color="#666" />
-            <Text style={styles.participantsText}>{item.participants}</Text>
+            <Text style={styles.participantsText}>모구러 {item.participants}</Text>
           </View>
           <Text style={styles.viewedTime}>{item.viewedAt}</Text>
         </View>

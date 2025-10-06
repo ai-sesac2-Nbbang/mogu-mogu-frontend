@@ -257,6 +257,21 @@ export default function MyPageScreen() {
     interestBadge || userBadges.filter(badge => !badge.isUnlocked)[0] // 관심 배지 또는 첫 번째 미획득 배지
   ].filter(Boolean); // null/undefined 제거
 
+  // 가격을 1/n으로 계산 (모구장 제외)
+  const calculatePricePerPerson = (priceString: string, participants: string) => {
+    // "9,170원" -> 9170
+    const price = parseInt(priceString.replace(/,/g, '').replace('원', ''));
+    
+    // "1/3" -> 전체 인원 3명
+    const totalCount = parseInt(participants.split('/')[1]);
+    
+    // 모구장 제외한 인원으로 나눔 (n-1)
+    const pricePerPerson = Math.round(price / (totalCount - 1));
+    
+    // 숫자를 천 단위 콤마로 포맷팅
+    return pricePerPerson.toLocaleString() + '원';
+  };
+
   const dummySoldProducts = [
     { id: "1", name: "프리미엄 롤화장지 10롤 구매하실 분?", price: "9,170원", participants: "1/3", image: require("../../../../assets/products/tissue.png") },
     { id: "2", name: "삼다수 생수 2L 6병 묶음 구매하실 분?", price: "4,590원", participants: "1/2", image: require("../../../../assets/products/shampoo.png") },
@@ -264,7 +279,8 @@ export default function MyPageScreen() {
     { id: "4", name: "추가 상품 1", price: "1,000원", participants: "1/1", image: require("../../../../assets/products/toothbrush.png") },
   ];
   const dummyPurchasedProducts: any[] = [
-    // { id: "1", name: "구매 상품 1", price: "5,000원", participants: "1/1", image: require("../../../../assets/products/tissue.png") },
+    { id: "1", name: "프리미엄 물티슈 20팩", price: "15,000원", participants: "2/4", image: require("../../../../assets/products/tissue.png") },
+    { id: "2", name: "유기농 계란 30구", price: "9,000원", participants: "1/3", image: require("../../../../assets/products/eggs.png") },
   ]; // 비어 있으면 안내 문구 표시
 
   // 좋은 후기와 안 좋은 후기 구분
@@ -376,7 +392,7 @@ export default function MyPageScreen() {
           <View style={styles.productDetails}>
             <Text style={styles.productName}>{product.name}</Text>
             <Text style={styles.productPrice}>{product.price}</Text>
-            <Text style={styles.productMoguin}>모구인 {product.participants}</Text>
+            <Text style={styles.productMoguin}>모구러 {product.participants}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -404,8 +420,8 @@ export default function MyPageScreen() {
             <Image source={product.image} style={styles.thumbnailImage} />
             <View style={styles.productDetails}>
               <Text style={styles.productName}>{product.name}</Text>
-              <Text style={styles.productPrice}>{product.price}</Text>
-              <Text style={styles.productMoguin}>모구인 {product.participants}</Text>
+              <Text style={styles.productPrice}>{calculatePricePerPerson(product.price, product.participants)}</Text>
+              <Text style={styles.productMoguin}>모구러 {product.participants}</Text>
             </View>
           </TouchableOpacity>
         ))

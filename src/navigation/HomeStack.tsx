@@ -4,6 +4,8 @@ import HomeScreen from "../screens/HomeScreen";
 import AddressScreen from "../screens/AddressScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import ProductAddScreen from "../screens/ProductAddScreen";
+import SearchScreen from "../screens/SearchScreen";
+import NotificationScreen from "../screens/NotificationScreen";
 import { HomeStackParamList } from "../types/navigation";
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -34,6 +36,20 @@ export default function HomeStack() {
       <Stack.Screen 
         name="ProductAdd" 
         component={ProductAddScreen}
+        options={{ 
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="Search" 
+        component={SearchScreen}
+        options={{ 
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="Notification" 
+        component={NotificationScreen}
         options={{ 
           headerShown: false,
         }}

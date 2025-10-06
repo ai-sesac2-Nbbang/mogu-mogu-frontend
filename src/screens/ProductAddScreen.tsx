@@ -40,7 +40,7 @@ export default function ProductAddScreen({ navigation }: Props) {
   const [groupCount, setGroupCount] = useState<number | null>(null); // Change to number | null
   const [groupLocation, setGroupLocation] = useState("");
   const [purchasePrice, setPurchasePrice] = useState("");
-  const [commissionRate, setCommissionRate] = useState(125); // Default to 125%
+  const [commissionRate, setCommissionRate] = useState(100); // Default to 100%
   
   // 모구 마감 (월/일/시간)
   const [deadlineMonth, setDeadlineMonth] = useState("");
@@ -360,198 +360,275 @@ const generateMinutes = (
     <SafeAreaView style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="#8A2BE2" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>모구하기</Text>
+        <View style={styles.headerTitleContainer}>
+          <Ionicons name="cart" size={24} color="#8A2BE2" />
+          <Text style={styles.headerTitle}>모구하기</Text>
+        </View>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* 제목 */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>제목</Text>
-          <TextInput
-            style={[styles.input, errors.productName && styles.errorInput]}
-            value={productName}
-            onChangeText={(text) => {
-              setProductName(text);
-              setErrors((prev) => ({ ...prev, productName: false }));
-            }}
-            placeholder="모구러들이 보는 제목을 입력해주세요"
-          />
-        </View>
-
-         {/* 카테고리 */}
-         <View style={styles.inputGroup}>
-           <Text style={styles.label}>카테고리</Text>
-           <TouchableOpacity 
-             style={[styles.selectButton, errors.category && styles.errorInput]}
-             onPress={() => setShowCategoryModal(true)}
-           >
-             <Text style={[styles.selectButtonText, !category && styles.placeholder]}>
-               {category || "카테고리"}
-             </Text>
-             <Ionicons name="chevron-down" size={20} color="#666" />
-           </TouchableOpacity>
-         </View>
-
-        {/* 자세한 설명 */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>자세한 설명</Text>
-          <TextInput
-            style={[styles.input, styles.textArea, errors.description && styles.errorInput]}
-            value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-              setErrors((prev) => ({ ...prev, description: false }));
-            }}
-            placeholder="모구할 상품에 대한 자세한 설명을 입력해주세요"
-            multiline
-          />
-        </View>
-
-         {/* 모구 인원 */}
-         <View style={styles.inputGroup}>
-           <Text style={styles.label}>모구 인원</Text>
-           <View style={[styles.groupCountButtonsContainer, errors.groupCount && styles.errorInput]}>
-             {[2, 3, 4, 5].map((count) => (
-               <TouchableOpacity
-                 key={count}
-                 style={[
-                   styles.groupCountButton,
-                   groupCount === count && styles.groupCountButtonActive,
-                 ]}
-                 onPress={() => {
-                   setGroupCount(count);
-                   setErrors((prev) => ({ ...prev, groupCount: false }));
-                 }}
-               >
-                <Text
-                  style={[
-                    styles.groupCountButtonText,
-                    groupCount === count && styles.groupCountButtonTextActive,
-                  ]}
-                >
-                  {`${count}인`}
-                </Text>
-               </TouchableOpacity>
-             ))}
-           </View>
-           <View style={[styles.groupCountButtonsContainer, { marginTop: 10 }, errors.groupCount && styles.errorInput]}>
-             {[6, 7, 8, 9].map((count) => (
-               <TouchableOpacity
-                 key={count}
-                 style={[
-                   styles.groupCountButton,
-                   groupCount === count && styles.groupCountButtonActive,
-                 ]}
-                 onPress={() => {
-                   setGroupCount(count);
-                   setErrors((prev) => ({ ...prev, groupCount: false }));
-                 }}
-               >
-                <Text
-                  style={[
-                    styles.groupCountButtonText,
-                    groupCount === count && styles.groupCountButtonTextActive,
-                  ]}
-                >
-                  {`${count}인`}
-                </Text>
-               </TouchableOpacity>
-             ))}
-           </View>
-         </View>
-
-        {/* 모구팟 (주소 검색) */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>모구팟</Text>
-          <TouchableOpacity 
-            style={[styles.selectButton, errors.groupLocation && styles.errorInput]}
-            onPress={() => setShowAddressModal(true)}
-          >
-            <Text style={[styles.selectButtonText, !groupLocation && styles.placeholder]}>
-              {groupLocation || "주소를 검색하세요"}
-            </Text>
-            <Ionicons name="search" size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-
-         {/* 모구 마감 */}
-         <View style={styles.inputGroup}>
-           <Text style={styles.label}>모구 마감</Text>
-           <View style={styles.dateTimeContainer}>
-            <TouchableOpacity 
-              style={[styles.selectButton, styles.dateTimeButton, errors.deadlineMonth && styles.errorInput]}
-              onPress={() => setShowDeadlineMonthModal(true)}
-            >
-               <Text style={[styles.selectButtonText, !deadlineMonth && styles.placeholder]}>
-                 {deadlineMonth || "월"}
-               </Text>
-               <Ionicons name="chevron-down" size={16} color="#666" />
-             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.selectButton, styles.dateTimeButton, errors.deadlineDay && styles.errorInput]}
-              onPress={() => setShowDeadlineDayModal(true)}
-            >
-               <Text style={[styles.selectButtonText, !deadlineDay && styles.placeholder]}>
-                 {deadlineDay || "일"}
-               </Text>
-               <Ionicons name="chevron-down" size={16} color="#666" />
-             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.selectButton, styles.dateTimeButton, errors.deadlineHour && styles.errorInput]}
-              onPress={() => setShowDeadlineHourModal(true)}
-            >
-               <Text style={[styles.selectButtonText, !deadlineHour && styles.placeholder]}>
-                 {deadlineHour || "시간"}
-               </Text>
-               <Ionicons name="chevron-down" size={16} color="#666" />
-              </TouchableOpacity>
-            </View>
+        {/* 기본 정보 섹션 */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="information-circle" size={22} color="#8A2BE2" />
+            <Text style={styles.sectionTitle}>기본 정보</Text>
           </View>
 
-        {/* 구매 가격 */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>구매 가격</Text>
-          <TextInput
-            style={[styles.input, errors.purchasePrice && styles.errorInput]}
-            value={purchasePrice}
-            onChangeText={(text) => {
-              setPurchasePrice(text);
-              setErrors((prev) => ({ ...prev, purchasePrice: false }));
-            }}
-            placeholder="상품 원래 구매 금액"
-            keyboardType="numeric"
-          />
-        </View>
-
-        {/* 수수료율 슬라이더 */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>{`수수료율: ${commissionRate}%`}</Text>
-          <View style={[styles.sliderContainer, errors.commissionRate && styles.errorInput]}>
-            <Slider
-              style={styles.slider}
-              minimumValue={100}
-              maximumValue={150}
-              step={5}
-              value={commissionRate}
-              onValueChange={(value) => {
-                setCommissionRate(value);
-                setErrors((prev) => ({ ...prev, commissionRate: false }));
+          {/* 제목 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="create-outline" size={18} color="#666" />
+              <Text style={styles.label}>제목</Text>
+            </View>
+            <TextInput
+              style={[styles.input, errors.productName && styles.errorInput]}
+              value={productName}
+              onChangeText={(text) => {
+                setProductName(text);
+                setErrors((prev) => ({ ...prev, productName: false }));
               }}
-              minimumTrackTintColor="#e91e63"
-              maximumTrackTintColor="#d3d3d3"
-              thumbTintColor="#e91e63"
+              placeholder="모구러들이 보는 제목을 입력해주세요"
+            />
+          </View>
+
+          {/* 카테고리 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="grid-outline" size={18} color="#666" />
+              <Text style={styles.label}>카테고리</Text>
+            </View>
+            <TouchableOpacity 
+              style={[styles.selectButton, errors.category && styles.errorInput]}
+              onPress={() => setShowCategoryModal(true)}
+            >
+              <Text style={[styles.selectButtonText, !category && styles.placeholder]}>
+                {category || "카테고리 선택"}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#8A2BE2" />
+            </TouchableOpacity>
+          </View>
+
+          {/* 자세한 설명 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="document-text-outline" size={18} color="#666" />
+              <Text style={styles.label}>자세한 설명</Text>
+            </View>
+            <TextInput
+              style={[styles.input, styles.textArea, errors.description && styles.errorInput]}
+              value={description}
+              onChangeText={(text) => {
+                setDescription(text);
+                setErrors((prev) => ({ ...prev, description: false }));
+              }}
+              placeholder="모구할 상품에 대한 자세한 설명을 입력해주세요"
+              multiline
             />
           </View>
         </View>
 
-         {/* 만남 날짜 */}
+        {/* 모구 설정 섹션 */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="people" size={22} color="#8A2BE2" />
+            <Text style={styles.sectionTitle}>모구 설정</Text>
+          </View>
+
+          {/* 모구러 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="person-add-outline" size={18} color="#666" />
+              <Text style={styles.label}>모구러</Text>
+            </View>
+            <View style={styles.groupCountInputContainer}>
+              <TextInput
+                style={[
+                  styles.groupCountInput,
+                  errors.groupCount && styles.errorInput
+                ]}
+                placeholder="인원 수를 입력하세요 (최소 1인)"
+                placeholderTextColor="#999"
+                value={groupCount !== null ? groupCount.toString() : ''}
+                onChangeText={(text) => {
+                  const num = parseInt(text);
+                  if (text === '') {
+                    setGroupCount(null);
+                  } else if (!isNaN(num) && num >= 1) {
+                    setGroupCount(num);
+                    setErrors((prev) => ({ ...prev, groupCount: false }));
+                  }
+                }}
+                keyboardType="number-pad"
+              />
+              <Text style={styles.groupCountUnit}>명</Text>
+            </View>
+            <Text style={styles.groupCountHint}>💡 1명 이상 입력 가능</Text>
+          </View>
+
+          {/* 모구팟 (주소 검색) */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="location-outline" size={18} color="#666" />
+              <Text style={styles.label}>모구팟</Text>
+            </View>
+            <TouchableOpacity 
+              style={[styles.selectButton, errors.groupLocation && styles.errorInput]}
+              onPress={() => setShowAddressModal(true)}
+            >
+              <Text style={[styles.selectButtonText, !groupLocation && styles.placeholder]}>
+                {groupLocation || "주소를 검색하세요"}
+              </Text>
+              <Ionicons name="search" size={20} color="#8A2BE2" />
+            </TouchableOpacity>
+          </View>
+
+          {/* 모구 마감 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="alarm-outline" size={18} color="#666" />
+              <Text style={styles.label}>모구 마감</Text>
+            </View>
+            <View style={styles.dateTimeContainer}>
+              <TouchableOpacity 
+                style={[styles.selectButton, styles.dateTimeButton, errors.deadlineMonth && styles.errorInput]}
+                onPress={() => setShowDeadlineMonthModal(true)}
+              >
+                <Text style={[styles.selectButtonText, !deadlineMonth && styles.placeholder]}>
+                  {deadlineMonth || "월"}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.selectButton, styles.dateTimeButton, errors.deadlineDay && styles.errorInput]}
+                onPress={() => setShowDeadlineDayModal(true)}
+              >
+                <Text style={[styles.selectButtonText, !deadlineDay && styles.placeholder]}>
+                  {deadlineDay || "일"}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.selectButton, styles.dateTimeButton, errors.deadlineHour && styles.errorInput]}
+                onPress={() => setShowDeadlineHourModal(true)}
+              >
+                <Text style={[styles.selectButtonText, !deadlineHour && styles.placeholder]}>
+                  {deadlineHour || "시간"}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* 가격 정보 섹션 */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="cash" size={22} color="#8A2BE2" />
+            <Text style={styles.sectionTitle}>가격 정보</Text>
+          </View>
+
+          {/* 구매 가격 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="card-outline" size={18} color="#666" />
+              <Text style={styles.label}>구매 가격</Text>
+            </View>
+            <View style={styles.priceInputWrapper}>
+              <TextInput
+                style={[styles.input, styles.priceInput, errors.purchasePrice && styles.errorInput]}
+                value={purchasePrice}
+                onChangeText={(text) => {
+                  setPurchasePrice(text);
+                  setErrors((prev) => ({ ...prev, purchasePrice: false }));
+                }}
+                placeholder="상품 원래 구매 금액"
+                keyboardType="numeric"
+              />
+              <Text style={styles.currencyLabel}>원</Text>
+            </View>
+          </View>
+
+        {/* 수수료율 */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>만남 날짜</Text>
-          <View style={styles.dateTimeContainer}>
+          <Text style={styles.label}>수수료율 (수고비)</Text>
+
+          {/* 슬라이더 바 */}
+          <View style={styles.commissionSliderCard}>
+            <View style={styles.commissionValueDisplay}>
+              <Text style={styles.commissionValueText}>{commissionRate}%</Text>
+            </View>
+            
+            <View style={styles.commissionSliderWrapper}>
+              <View style={styles.sliderTrackBackground}>
+                <View 
+                  style={[
+                    styles.sliderTrackFill, 
+                    { width: `${(commissionRate / 200) * 100}%` }
+                  ]} 
+                />
+              </View>
+              <Slider
+                style={styles.commissionSlider}
+                minimumValue={0}
+                maximumValue={200}
+                step={5}
+                value={commissionRate}
+                onValueChange={(value) => {
+                  setCommissionRate(value);
+                  setErrors((prev) => ({ ...prev, commissionRate: false }));
+                }}
+                minimumTrackTintColor="transparent"
+                maximumTrackTintColor="transparent"
+                thumbTintColor="#8A2BE2"
+              />
+            </View>
+
+            <View style={styles.commissionRangeLabels}>
+              <Text style={styles.rangeLabel}>0%</Text>
+              <Text style={styles.rangeLabel}>50%</Text>
+              <Text style={styles.rangeLabel}>100%</Text>
+              <Text style={styles.rangeLabel}>150%</Text>
+              <Text style={styles.rangeLabel}>200%</Text>
+            </View>
+          </View>
+
+          {/* 최종 가격 */}
+          {purchasePrice && !isNaN(parseFloat(purchasePrice)) && (
+            <View style={styles.finalPriceContainer}>
+              <View style={styles.finalPriceRow}>
+                <Text style={styles.finalPriceLabel}>최종 판매 가격</Text>
+                <Text style={styles.finalPriceValue}>
+                  {Math.round(parseFloat(purchasePrice) * (commissionRate / 100)).toLocaleString()}원
+                </Text>
+              </View>
+              <View style={styles.finalPriceDetail}>
+                <Text style={styles.finalPriceDetailText}>
+                  원가 {parseFloat(purchasePrice).toLocaleString()}원 × {commissionRate}%
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+        </View>
+
+        {/* 만남 일정 섹션 */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="calendar" size={22} color="#8A2BE2" />
+            <Text style={styles.sectionTitle}>만남 일정</Text>
+          </View>
+
+         {/* 만남 날짜 */}
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons name="calendar-outline" size={18} color="#666" />
+              <Text style={styles.label}>만남 날짜</Text>
+            </View>
+            <View style={styles.dateTimeContainer}>
 
             {/* 년도 선택 */}
             <TouchableOpacity
@@ -561,7 +638,7 @@ const generateMinutes = (
               <Text style={[styles.selectButtonText, !meetupYear && styles.placeholder]}>
                 {meetupYear || "년"}
               </Text>
-              <Ionicons name="chevron-down" size={16} color="#666" />
+              <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
             </TouchableOpacity>
 
             {/* 월 선택 */}
@@ -577,7 +654,7 @@ const generateMinutes = (
               >
                 {meetupMonth || "월"}
               </Text>
-              <Ionicons name="chevron-down" size={16} color="#666" />
+              <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
             </TouchableOpacity>
 
             {/* 일 선택 */}
@@ -593,7 +670,7 @@ const generateMinutes = (
               >
                 {meetupDay || "일"}
               </Text>
-              <Ionicons name="chevron-down" size={16} color="#666" />
+              <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
             </TouchableOpacity>
 
           </View>
@@ -602,7 +679,10 @@ const generateMinutes = (
 
          {/* 만남 시간 */}
          <View style={styles.inputGroup}>
-           <Text style={styles.label}>만남 시간</Text>
+           <View style={styles.labelRow}>
+             <Ionicons name="time-outline" size={18} color="#666" />
+             <Text style={styles.label}>만남 시간</Text>
+           </View>
            <View style={styles.dateTimeContainer}>
              <TouchableOpacity 
                style={[styles.selectButton, styles.dateTimeButton, errors.meetupHour && styles.errorInput]}
@@ -611,7 +691,7 @@ const generateMinutes = (
                <Text style={[styles.selectButtonText, !meetupHour && styles.placeholder]}>
                  {meetupHour || "시"}
                </Text>
-               <Ionicons name="chevron-down" size={16} color="#666" />
+               <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
              </TouchableOpacity>
              <TouchableOpacity 
                style={[styles.selectButton, styles.dateTimeButton, errors.meetupMinute && styles.errorInput]}
@@ -620,13 +700,15 @@ const generateMinutes = (
                <Text style={[styles.selectButtonText, !meetupMinute && styles.placeholder]}>
                  {meetupMinute || "분"}
                </Text>
-               <Ionicons name="chevron-down" size={16} color="#666" />
+               <Ionicons name="chevron-down" size={16} color="#8A2BE2" />
              </TouchableOpacity>
            </View>
          </View>
+        </View>
 
         {/* 등록 버튼 */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Ionicons name="checkmark-circle" size={24} color="#fff" />
           <Text style={styles.submitButtonText}>모구 등록하기</Text>
         </TouchableOpacity>
        </ScrollView>
@@ -736,7 +818,7 @@ const generateMinutes = (
            <View style={styles.modalOverlay}>
              <View style={styles.modalContent}>
                <View style={styles.modalHeader}>
-                 <Text style={styles.modalTitle}>모구 인원 선택</Text>
+                 <Text style={styles.modalTitle}>모구러 선택</Text>
                  <TouchableOpacity onPress={() => setShowGroupCountModal(false)}>
                    <Ionicons name="close" size={24} color="#333" />
                  </TouchableOpacity>
@@ -1083,7 +1165,7 @@ const generateMinutes = (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f8f9fa",
   },
   header: {
     flexDirection: "row",
@@ -1092,101 +1174,214 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     marginTop: 25,
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#8A2BE2",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  inputGroup: {
+  sectionCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: "#f3e5f5",
   },
-  label: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 8,
+    marginLeft: 8,
+  },
+  inputGroup: {
+    marginBottom: 18,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+    marginLeft: 6,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: "#e0e0e0",
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
+    paddingVertical: 14,
+    fontSize: 15,
     color: "#333",
     backgroundColor: "#fff",
   },
   textArea: {
-    height: 100,
+    height: 120,
     textAlignVertical: "top",
   },
-  
-  submitButton: {
-    backgroundColor: "#e91e63",
-    borderRadius: 8,
-    paddingVertical: 16,
+  priceInputWrapper: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
+  },
+  priceInput: {
+    flex: 1,
+    marginRight: 8,
+  },
+  currencyLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#666",
+  },
+  submitButton: {
+    backgroundColor: "#8A2BE2",
+    borderRadius: 16,
+    paddingVertical: 18,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
     marginBottom: 40,
+    shadowColor: "#8A2BE2",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
    submitButtonText: {
      color: "#fff",
-     fontSize: 16,
+     fontSize: 18,
      fontWeight: "bold",
+     marginLeft: 8,
    },
    selectButton: {
-     borderWidth: 1,
-     borderColor: "#ddd",
-     borderRadius: 8,
+     borderWidth: 1.5,
+     borderColor: "#e0e0e0",
+     borderRadius: 12,
      paddingHorizontal: 16,
-     paddingVertical: 12,
+     paddingVertical: 14,
      backgroundColor: "#fff",
      flexDirection: "row",
      justifyContent: "space-between",
      alignItems: "center",
    },
    selectButtonText: {
-     fontSize: 14,
+     fontSize: 15,
      color: "#333",
    },
    placeholder: {
-     color: "#999",
+     color: "#aaa",
    },
    dateTimeContainer: {
      flexDirection: "row",
      justifyContent: "space-between",
      gap: 8,
    },
-   dateTimeButton: {
-     flex: 1,
-   },
-   sliderContainer: {
-     ...Platform.select({
-       ios: {
-         paddingHorizontal: 0,
-         paddingVertical: 0,
-       },
-     }),
-     borderWidth: 1,
-     borderColor: "#ddd",
-     borderRadius: 8,
-     paddingHorizontal: 16,
-     paddingVertical: 12,
-     backgroundColor: "#fff",
-   },
-   slider: {
-     width: "100%",
-     height: 40,
-     marginTop: 10,
-   },
+  dateTimeButton: {
+    flex: 1,
+  },
+  commissionSliderCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 2,
+    borderColor: '#f0f0f0',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  commissionValueDisplay: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  commissionValueText: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: '#8A2BE2',
+    letterSpacing: 1,
+  },
+  commissionSliderWrapper: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  sliderTrackBackground: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '50%',
+    height: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 4,
+    marginTop: -4,
+    overflow: 'hidden',
+  },
+  sliderTrackFill: {
+    height: '100%',
+    backgroundColor: '#8A2BE2',
+    borderRadius: 4,
+  },
+  commissionSlider: {
+    width: '100%',
+    height: 40,
+  },
+  commissionRangeLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  rangeLabel: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '600',
+  },
    modalOverlay: {
      flex: 1,
      backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -1250,30 +1445,72 @@ const styles = StyleSheet.create({
    errorInput: {
     borderColor: "red",
   },
-  groupCountButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
+  groupCountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  groupCountButton: {
+  groupCountInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#e0e0e0",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 15,
     backgroundColor: "#fff",
-  },
-  groupCountButtonActive: {
-    borderColor: "#e91e63",
-    backgroundColor: "#ffebee",
-  },
-  groupCountButtonText: {
-    fontSize: 14,
     color: "#333",
   },
-  groupCountButtonTextActive: {
-    color: "#e91e63",
+  groupCountUnit: {
+    fontSize: 16,
+    color: "#8A2BE2",
+    fontWeight: "700",
+    marginLeft: 10,
+  },
+  groupCountHint: {
+    fontSize: 13,
+    color: "#999",
+    marginTop: 8,
+  },
+  finalPriceContainer: {
+    marginTop: 10,
+    padding: 18,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#8A2BE2",
+    shadowColor: "#8A2BE2",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  finalPriceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  finalPriceLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#666",
+  },
+  finalPriceValue: {
+    fontSize: 24,
     fontWeight: "bold",
+    color: "#8A2BE2",
+  },
+  finalPriceDetail: {
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  finalPriceDetailText: {
+    fontSize: 13,
+    color: "#999",
+    textAlign: "center",
   },
  });

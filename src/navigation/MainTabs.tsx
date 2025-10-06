@@ -9,7 +9,7 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // ✅ 아이콘 추가
+import { Ionicons } from "@expo/vector-icons"; // ✅ 아이콘 추가
 
 // 화면 컴포넌트 import
 import HomeStack from "./HomeStack";
@@ -97,8 +97,8 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
             activeOpacity={0.7}
           >
             {/* ✅ 아이콘 + 텍스트 함께 표시 */}
-            <Icon
-              name={iconName}
+            <Ionicons
+              name={iconName as any}
               size={22}
               color={isFocused ? "#1976D2" : "#666"}
               style={{ marginBottom: 2 }}

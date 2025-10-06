@@ -3,7 +3,7 @@ import axios from "axios";
 import { getTokens, saveTokens, clearTokens } from "./storage";
 
 // ✅ 환경변수에서 API 주소 가져오기
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "https://acb4995d2e6e.ngrok-free.app0";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "https://acb4995d2e6e.ngrok-free.app";
 
 const api = axios.create({
   baseURL: API_URL,

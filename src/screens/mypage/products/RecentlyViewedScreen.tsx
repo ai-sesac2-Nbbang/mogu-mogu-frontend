@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import ConfirmationModal from '../../../components/mypage/ConfirmationModal';
 
 // 상품 타입 정의
 interface Product {
@@ -17,6 +18,8 @@ interface Product {
 const RecentlyViewedScreen = () => {
   const navigation = useNavigation();
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   // TODO: DB에서 최근 본 글 불러오기
   /*
@@ -105,6 +108,16 @@ const RecentlyViewedScreen = () => {
 
   // 좋아요 토글 핸들러
   const handleToggleLike = async (productId: string) => {
+    const product = recentProducts.find(p => p.id === productId);
+    
+    // 좋아요가 이미 되어 있는 경우 (해제하려는 경우) - 확인 모달 표시
+    if (product?.isLiked) {
+      setSelectedProductId(productId);
+      setIsModalVisible(true);
+      return;
+    }
+    
+    // 좋아요 추가하는 경우 - 바로 실행
     // TODO: API 호출하여 서버에 좋아요 상태 업데이트
     /*
     try {
@@ -126,6 +139,37 @@ const RecentlyViewedScreen = () => {
           : product
       )
     );
+  };
+
+  // 좋아요 해제 확인
+  const confirmRemoveLike = async () => {
+    if (!selectedProductId) return;
+
+    // TODO: API 호출하여 서버에 좋아요 해제 업데이트
+    /*
+    try {
+      await axios.delete(`/api/products/${selectedProductId}/like`, {
+        headers: {
+          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+        },
+      });
+    } catch (error) {
+      console.error('좋아요 해제 실패:', error);
+    }
+    */
+
+    // 로컬 상태 업데이트
+    setRecentProducts(prevProducts => 
+      prevProducts.map(product => 
+        product.id === selectedProductId 
+          ? { ...product, isLiked: false }
+          : product
+      )
+    );
+
+    // 모달 닫기
+    setIsModalVisible(false);
+    setSelectedProductId(null);
   };
 
   // 상품 렌더링
@@ -192,6 +236,20 @@ const RecentlyViewedScreen = () => {
           <Text style={styles.emptySubText}>상품을 둘러보고 관심 있는 상품을 찾아보세요!</Text>
         </View>
       )}
+
+      {/* 관심 목록 해제 확인 모달 */}
+      <ConfirmationModal
+        isVisible={isModalVisible}
+        onClose={() => {
+          setIsModalVisible(false);
+          setSelectedProductId(null);
+        }}
+        onConfirm={confirmRemoveLike}
+        title="관심 목록 해제"
+        message="이 상품을 관심 목록에서 제거하시겠습니까?"
+        confirmText="해제"
+        cancelText="취소"
+      />
     </View>
   );
 };

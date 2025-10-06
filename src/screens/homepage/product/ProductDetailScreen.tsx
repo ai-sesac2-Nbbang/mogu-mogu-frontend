@@ -14,6 +14,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -78,6 +79,75 @@ export default function ProductDetailScreen({ navigation }: Props) {
   const route = useRoute<ProductDetailScreenRouteProp>();
   const { productId } = route.params;
 
+  // 데이터베이스에서 제품 상세 정보를 조회하는 함수 (현재 주석처리)
+  // const fetchProductDetail = async (id: number) => {
+  //   try {
+  //     // TODO: 실제 API 호출로 교체
+  //     // const response = await fetch(`/api/products/${id}`);
+  //     // const productDetail = await response.json();
+  //     // return productDetail;
+      
+  //     // 임시로 하드코딩된 제품 상세 정보 반환 (실제 구현 시 주석 처리)
+  //     const hardcodedProductDetail = {
+  //       id: id,
+  //       name: "물티슈 10롤",
+  //       originalPrice: "25,000원",
+  //       groupPrice: "27,500원",
+  //       currentParticipants: 2,
+  //       maxParticipants: 3,
+  //       perPersonPrice: "9,170원",
+  //       meetupDate: "2024년 12월 25일",
+  //       meetupLocation: "서울시청 앞 광장",
+  //       meetupTime: "오후 2:00",
+  //       image: require("../../../../assets/products/tissue.png"),
+  //       description: "부드럽고 튼튼한 물티슈로 일상생활에 필수적인 제품입니다. 10롤 세트로 경제적이고 실용적입니다.\n\n• 100% 천연 펄프 사용\n• 알레르기 테스트 완료\n• 친환경 포장재 사용\n• 방수 처리로 내구성 향상",
+  //       deliveryInfo: "집단배송금고",
+  //       endDate: "2일 뒤",
+  //       category: "생활용품",
+  //       brand: "크리넥스",
+  //       features: [
+  //         "100% 천연 펄프 사용",
+  //         "알레르기 테스트 완료", 
+  //         "친환경 포장재 사용",
+  //         "방수 처리로 내구성 향상"
+  //       ],
+  //       organizer: {
+  //         name: "김모구",
+  //         rating: 4.8,
+  //         reviewCount: 127
+  //       },
+  //       reviews: [
+  //         {
+  //           id: 1,
+  //           userName: "이사용자",
+  //           rating: 5,
+  //           comment: "정말 좋은 제품이에요! 다음에도 참여하고 싶습니다.",
+  //           date: "2024-12-20"
+  //         },
+  //         {
+  //           id: 2,
+  //           userName: "박고객", 
+  //           rating: 4,
+  //           comment: "가격 대비 품질이 훌륭합니다. 추천해요!",
+  //           date: "2024-12-19"
+  //         }
+  //       ],
+  //       status: "진행중",
+  //       location: {
+  //         lat: 37.5665,
+  //         lng: 126.9780,
+  //         address: "서울특별시 중구 세종대로 110"
+  //       }
+  //     };
+      
+  //     console.log('제품 상세 정보 조회 완료:', hardcodedProductDetail);
+  //     return hardcodedProductDetail;
+  //   } catch (error) {
+  //     console.error('제품 상세 정보 조회 오류:', error);
+  //     throw error;
+  //   }
+  // };
+
   const [product, setProduct] = useState<ProductDetail>({
     id: 1,
     name: "물티슈 10롤",
@@ -95,6 +165,49 @@ export default function ProductDetailScreen({ navigation }: Props) {
     endDate: "2일 뒤",
     category: "모구 마켓",
   });
+
+  // 데이터베이스 조회 부분 주석처리 (현재는 기본 제품 정보 사용)
+  // const [isLoading, setIsLoading] = useState(true);
+
+  // 컴포넌트 마운트 시 제품 상세 정보 조회 (현재 주석처리)
+  // useEffect(() => {
+  //   const loadProductDetail = async () => {
+  //     try {
+  //       console.log('ProductDetailScreen - 제품 상세 정보 조회 시작, productId:', productId);
+  //       setIsLoading(true);
+        
+  //       const productDetail = await fetchProductDetail(productId);
+        
+  //       // 조회된 데이터로 제품 정보 업데이트
+  //       setProduct({
+  //         id: productDetail.id,
+  //         name: productDetail.name,
+  //         originalPrice: productDetail.originalPrice,
+  //         groupPrice: productDetail.groupPrice,
+  //         currentParticipants: productDetail.currentParticipants,
+  //         maxParticipants: productDetail.maxParticipants,
+  //         perPersonPrice: productDetail.perPersonPrice,
+  //         meetupDate: productDetail.meetupDate,
+  //         meetupLocation: productDetail.meetupLocation,
+  //         meetupTime: productDetail.meetupTime,
+  //         image: productDetail.image,
+  //         description: productDetail.description,
+  //         deliveryInfo: productDetail.deliveryInfo,
+  //         endDate: productDetail.endDate,
+  //         category: productDetail.category,
+  //       });
+        
+  //       console.log('ProductDetailScreen - 제품 상세 정보 로드 완료');
+  //     } catch (error) {
+  //       console.error('ProductDetailScreen - 제품 상세 정보 로드 실패:', error);
+  //       Alert.alert('오류', '제품 정보를 불러오는데 실패했습니다.');
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   loadProductDetail();
+  // }, [productId]);
 
   const [isLiked, setIsLiked] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
@@ -905,6 +1018,18 @@ export default function ProductDetailScreen({ navigation }: Props) {
     setNewComment("");
   };
 
+  // 로딩 상태 표시 (현재 주석처리)
+  // if (isLoading) {
+  //   return (
+  //     <SafeAreaView style={styles.container}>
+  //       <View style={styles.loadingContainer}>
+  //         <ActivityIndicator size="large" color="#8A2BE2" />
+  //         <Text style={styles.loadingText}>제품 정보를 불러오는 중...</Text>
+  //       </View>
+  //     </SafeAreaView>
+  //   );
+  // }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -1556,6 +1681,18 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "500",
   },
   imageContainer: {
     backgroundColor: "#fff",

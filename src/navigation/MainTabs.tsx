@@ -23,7 +23,10 @@ interface LoginScreenProps {
 
 // 탭 파라미터 타입 정의
 type RootTabParamList = {
-  HomeStack: undefined;
+  HomeStack: {
+    screen?: string;
+    params?: any;
+  };
   Map: undefined;
   MyPageStack: undefined; // MyPage 대신 MyPageStack 사용
 };

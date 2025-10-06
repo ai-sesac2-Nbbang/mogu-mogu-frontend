@@ -11,6 +11,8 @@ export type HomeStackParamList = {
   } | undefined;
   ProductAdd: undefined;
   ProductDetail: { productId: number };
+  Search: undefined;
+  Notification: undefined;
 };
 
 export type RootStackParamList = {

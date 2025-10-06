@@ -194,8 +194,8 @@ export default function AddressScreen({ navigation }: Props) {
             });
           }}
         >
-          <Ionicons name="location-outline" size={20} color="#666" />
-          <View style={{ marginLeft: 10, flex: 1 }}>
+          <Ionicons name="location" size={22} color="#8A2BE2" />
+          <View style={{ marginLeft: 12, flex: 1 }}>
             <Text style={styles.searchResultText}>{item.address_name}</Text>
             {item.road_address_name ? (
               <Text style={styles.roadAddressText}>
@@ -220,14 +220,14 @@ export default function AddressScreen({ navigation }: Props) {
           >
             <Ionicons
               name={item.label === "우리집" ? "home" : "business"}
-              size={20}
-              color="#333"
+              size={22}
+              color="#8A2BE2"
             />
-            <View style={{ marginLeft: 10, flex: 1 }}>
+            <View style={{ marginLeft: 12, flex: 1 }}>
               <Text style={styles.addressLabel}>
                 {item.label}{" "}
                 {isCurrent && (
-                  <Text style={styles.currentTag}>현재 설정된 주소</Text> // ✅ 현재 선택된 주소 라벨
+                  <Text style={styles.currentTag}>현재 설정된 주소</Text>
                 )}
               </Text>
               <Text style={styles.addressDetail}>{item.detail}</Text>
@@ -237,7 +237,7 @@ export default function AddressScreen({ navigation }: Props) {
             style={styles.deleteButton}
             onPress={() => deleteAddress(item.id)}
           >
-            <Ionicons name="trash-outline" size={18} color="#e91e63" />
+            <Ionicons name="trash-outline" size={20} color="#e91e63" />
           </TouchableOpacity>
         </View>
       );
@@ -246,25 +246,53 @@ export default function AddressScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* 타이틀 섹션 */}
+      <View style={styles.titleSection}>
+        <View style={styles.titleRow}>
+          <Ionicons name="location" size={28} color="#8A2BE2" />
+          <Text style={styles.title}>주소 설정</Text>
+        </View>
+        <Text style={styles.subtitle}>배송받을 주소를 선택하거나 추가해주세요</Text>
+      </View>
+
       {/* 검색창 */}
       <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={20} color="#aaa" />
+        <Ionicons name="search-outline" size={20} color="#8A2BE2" />
         <TextInput
           placeholder="지번, 도로명, 건물명으로 검색"
+          placeholderTextColor="#aaa"
           style={styles.searchInput}
           value={query}
           onChangeText={searchAddress}
         />
+        {query.length > 0 && (
+          <TouchableOpacity onPress={() => {
+            setQuery("");
+            setSearchResults([]);
+          }}>
+            <Ionicons name="close-circle" size={20} color="#aaa" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* 현재 위치 찾기 */}
       <TouchableOpacity 
         style={styles.locationBtn}
         onPress={getCurrentLocation}
+        activeOpacity={0.7}
       >
-        <Ionicons name="locate-outline" size={18} color="#000" />
-        <Text style={{ marginLeft: 6 }}>현재 위치로 찾기</Text>
+        <Ionicons name="navigate" size={20} color="#8A2BE2" />
+        <Text style={styles.locationBtnText}>현재 위치로 찾기</Text>
       </TouchableOpacity>
+
+      {/* 구분선 */}
+      {!query.trim() && savedAddresses.length > 0 && (
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>저장된 주소</Text>
+          <View style={styles.dividerLine} />
+        </View>
+      )}
 
       {/* 주소 리스트 */}
       <FlatList
@@ -275,40 +303,120 @@ export default function AddressScreen({ navigation }: Props) {
             : `search-${(item as NormalizedAddress).address_name}-${index}`
         }
         renderItem={renderItem}
-        style={{ marginTop: 20 }}
+        style={{ marginTop: 15 }}
+        ListEmptyComponent={
+          query.trim() ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="search-outline" size={48} color="#ddd" />
+              <Text style={styles.emptyText}>검색 결과가 없습니다</Text>
+            </View>
+          ) : null
+        }
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#f8f9fa", 
+    padding: 20 
+  },
+  titleSection: {
+    marginBottom: 24,
+    paddingTop: 20,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#333",
+    marginLeft: 10,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginLeft: 38,
+  },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderWidth: 2,
+    borderColor: "#8A2BE2",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    shadowColor: "#8A2BE2",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  searchInput: { marginLeft: 6, flex: 1 },
+  searchInput: { 
+    marginLeft: 10, 
+    flex: 1,
+    fontSize: 15,
+    color: "#333",
+  },
   locationBtn: {
-    marginTop: 10,
+    marginTop: 12,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
     justifyContent: "center",
+    backgroundColor: "#F3E5F5",
+    borderRadius: 12,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "#E1BEE7",
+  },
+  locationBtnText: {
+    marginLeft: 8,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#8A2BE2",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#ddd",
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 13,
+    color: "#999",
+    fontWeight: "600",
   },
   addressItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   addressContent: {
     flexDirection: "row",
@@ -321,23 +429,61 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  addressLabel: { fontSize: 15, fontWeight: "bold" },
-  addressDetail: { fontSize: 13, color: "#666", marginTop: 2 },
+  addressLabel: { 
+    fontSize: 16, 
+    fontWeight: "bold",
+    color: "#333",
+  },
+  addressDetail: { 
+    fontSize: 14, 
+    color: "#666", 
+    marginTop: 4,
+    lineHeight: 20,
+  },
   currentTag: {
     fontSize: 11,
     color: "#fff",
-    backgroundColor: "#e91e63",
-    paddingHorizontal: 6,
-    borderRadius: 8,
-    marginLeft: 5,
+    backgroundColor: "#8A2BE2",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginLeft: 6,
+    overflow: "hidden",
   },
   searchResultItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  searchResultText: { fontSize: 14, color: "#333" },
-  roadAddressText: { fontSize: 12, color: "#666", marginTop: 4 },
+  searchResultText: { 
+    fontSize: 15, 
+    color: "#333",
+    fontWeight: "500",
+  },
+  roadAddressText: { 
+    fontSize: 13, 
+    color: "#999", 
+    marginTop: 4 
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: "#999",
+    marginTop: 16,
+  },
 });

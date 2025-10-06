@@ -196,7 +196,7 @@ export default function ProductDetailScreen({ navigation }: Props) {
     setProduct(selectedProduct);
     
     // 관심 목록에 있는 상품이면 좋아요 표시
-    setIsLiked(wishlistProductIds.includes(productId));
+    setIsLiked(wishlistProductIds.includes(String(productId)));
     setIsJoined(false);
   }, [productId]);
 
@@ -416,24 +416,25 @@ export default function ProductDetailScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="#8A2BE2" />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>상세페이지</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={handleToggleLike} style={styles.headerButton}>
             <Ionicons 
               name={isLiked ? "heart" : "heart-outline"} 
               size={24} 
-              color={isLiked ? "#e91e63" : "#000"} 
+              color={isLiked ? "#8A2BE2" : "#666"} 
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="share-outline" size={24} color="#000" />
+            <Ionicons name="share-outline" size={24} color="#666" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 상품 이미지 */}
         <View style={styles.imageContainer}>
           <Image source={product.image} style={styles.productImage} />
@@ -441,9 +442,25 @@ export default function ProductDetailScreen({ navigation }: Props) {
 
         {/* 상품 정보 */}
         <View style={styles.productInfo}>
-          <View style={styles.priceSection}>
-            <Text style={styles.categoryTag}>{product.category}</Text>
+          {/* 기본 정보 카드 */}
+          <View style={styles.infoCard}>
+            <View style={styles.categoryBadge}>
+              <Ionicons name="pricetag" size={14} color="#8A2BE2" />
+              <Text style={styles.categoryTag}>{product.category}</Text>
+            </View>
             <Text style={styles.productName}>{product.name}</Text>
+            <View style={styles.endDateBadge}>
+              <Ionicons name="time-outline" size={16} color="#666" />
+              <Text style={styles.endDateText}>{product.endDate} 마감</Text>
+            </View>
+          </View>
+
+          {/* 가격 정보 카드 */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="cash" size={22} color="#8A2BE2" />
+              <Text style={styles.sectionTitle}>가격 정보</Text>
+            </View>
             <View style={styles.priceRow}>
               <Text style={styles.labelText}>구매 가격</Text>
               <Text style={styles.originalPrice}>{product.originalPrice}</Text>
@@ -454,64 +471,92 @@ export default function ProductDetailScreen({ navigation }: Props) {
             </View>
             {calculatePriceIncrease() !== "0" && (
               <View style={styles.discountRow}>
+                <Ionicons name="trending-up" size={14} color="#8A2BE2" />
                 <Text style={styles.discountText}>
-                  구매 가격 대비 약 {calculatePriceIncrease()}% 증가했습니다.
+                  구매 가격 대비 약 {calculatePriceIncrease()}% 증가
                 </Text>
               </View>
             )}
-            <View style={styles.priceRow}>
-              <Text style={styles.labelText}>참여 인원</Text>
-              <Text style={styles.participants}>
-                {product.currentParticipants}/{product.maxParticipants}
-              </Text>
+            <View style={styles.highlightRow}>
+              <View style={styles.highlightItem}>
+                <Ionicons name="people" size={20} color="#8A2BE2" />
+                <Text style={styles.highlightLabel}>참여 인원</Text>
+                <Text style={styles.highlightValue}>
+                  {product.currentParticipants}/{product.maxParticipants}명
+                </Text>
+              </View>
+              <View style={styles.dividerVertical} />
+              <View style={styles.highlightItem}>
+                <Ionicons name="wallet" size={20} color="#8A2BE2" />
+                <Text style={styles.highlightLabel}>인당 금액</Text>
+                <Text style={styles.highlightValue}>{product.perPersonPrice}</Text>
+              </View>
             </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.labelText}>인당 금액</Text>
-              <Text style={styles.perPersonPrice}>{product.perPersonPrice}</Text>
+          </View>
+
+          {/* 만남 정보 카드 */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="calendar" size={22} color="#8A2BE2" />
+              <Text style={styles.sectionTitle}>만남 정보</Text>
             </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.labelText}>만남 날짜</Text>
+            <View style={styles.meetupRow}>
+              <Ionicons name="calendar-outline" size={18} color="#666" />
+              <Text style={styles.labelText}>날짜</Text>
               <Text style={styles.meetupDate}>{product.meetupDate}</Text>
             </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.labelText}>만남 시간</Text>
+            <View style={styles.meetupRow}>
+              <Ionicons name="time-outline" size={18} color="#666" />
+              <Text style={styles.labelText}>시간</Text>
               <Text style={styles.meetupTime}>{product.meetupTime}</Text>
             </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.labelText}>만남 장소</Text>
+            <View style={styles.meetupRow}>
+              <Ionicons name="location" size={18} color="#666" />
+              <Text style={styles.labelText}>장소</Text>
               <Text style={styles.meetupLocation}>{product.meetupLocation}</Text>
             </View>
           </View>
 
-          {/* 상세 내용 */}
-          <View style={styles.sectionContainer}>
-            <View style={styles.descriptionSection}>
+          {/* 상세 내용 카드 */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="document-text" size={22} color="#8A2BE2" />
               <Text style={styles.sectionTitle}>상세 내용</Text>
-              <Text style={styles.description}>{product.description}</Text>
             </View>
+            <Text style={styles.description}>{product.description}</Text>
           </View>
 
-          {/* 모구 신청 */}
-          <View style={styles.sectionContainer}>
-            <View style={styles.applySection}>
-              <Text style={styles.sectionTitle}>모구 신청</Text>
-              <Text style={styles.applyText}>
-                모구하신 3겹 프리미어 물티슈가 대량 구매 가격으로 10% 할인혜택을 받을 수 있습니다.
-              </Text>
-              <Text style={styles.applySubText}>
-                가격 가격에서의 재고 24시 7일 이하에서 거래 완료됩니다.
-              </Text>
+          {/* 모구 안내 카드 */}
+          <View style={styles.noticeCard}>
+            <View style={styles.noticeHeader}>
+              <Ionicons name="information-circle" size={20} color="#8A2BE2" />
+              <Text style={styles.noticeTitle}>모구 안내</Text>
             </View>
+            <Text style={styles.noticeText}>
+              • 모구 참여 후 거래가 성사되면 알림을 보내드립니다.{'\n'}
+              • 만남 장소와 시간을 꼭 확인해주세요.{'\n'}
+              • 모구장 제외 인원으로 1/n 금액이 책정됩니다.
+            </Text>
           </View>
         </View>
       </ScrollView>
 
       {/* 하단 고정 버튼 */}
       <View style={styles.bottomSection}>
+        <View style={styles.priceInfo}>
+          <Text style={styles.priceLabel}>인당 금액</Text>
+          <Text style={styles.priceValue}>{product.perPersonPrice}</Text>
+        </View>
         <TouchableOpacity 
           style={[styles.joinButton, isJoined && styles.cancelButton]} 
           onPress={handleJoinGroup}
+          activeOpacity={0.8}
         >
+          <Ionicons 
+            name={isJoined ? "close-circle" : "checkmark-circle"} 
+            size={20} 
+            color="#fff" 
+          />
           <Text style={styles.joinButtonText}>
             {isJoined ? "모구 취소" : "모구 신청"}
           </Text>
@@ -578,7 +623,7 @@ export default function ProductDetailScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f8f9fa",
   },
   header: {
     flexDirection: "row",
@@ -587,18 +632,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     marginTop: 25,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    position: "relative",
+  },
+  backButton: {
+    padding: 4,
+    zIndex: 1,
+  },
+  headerTitle: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
   },
   headerActions: {
     flexDirection: "row",
+    zIndex: 1,
   },
   headerButton: {
     marginLeft: 16,
+    padding: 4,
   },
   content: {
     flex: 1,
   },
   imageContainer: {
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
     alignItems: "center",
     paddingVertical: 40,
   },
@@ -608,85 +672,257 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   productInfo: {
-    padding: 20,
+    padding: 16,
   },
-  priceSection: {
-    marginBottom: 30,
+  infoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  categoryBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3E5F5",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginBottom: 12,
   },
   categoryTag: {
     fontSize: 12,
-    color: "#666",
-    backgroundColor: "#f0f0f0",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: "flex-start",
-    marginBottom: 8,
+    color: "#8A2BE2",
+    fontWeight: "600",
+    marginLeft: 4,
   },
   productName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "#333",
+    marginBottom: 12,
+    lineHeight: 28,
+  },
+  endDateBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  endDateText: {
+    fontSize: 13,
+    color: "#666",
+    marginLeft: 4,
+  },
+  sectionCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: "#f3e5f5",
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#333",
+    marginLeft: 8,
   },
   priceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: "#f5f5f5",
   },
   labelText: {
     fontSize: 14,
     color: "#666",
+    flex: 1,
   },
   originalPrice: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#333",
+    fontWeight: "500",
   },
   groupPrice: {
-    fontSize: 14,
-    color: "#e91e63",
+    fontSize: 15,
+    color: "#8A2BE2",
     fontWeight: "bold",
-  },
-  participants: {
-    fontSize: 14,
-    color: "#333",
-  },
-  perPersonPrice: {
-    fontSize: 14,
-    color: "#e91e63",
-    fontWeight: "bold",
-  },
-  meetupLocation: {
-    fontSize: 14,
-    color: "#333",
   },
   discountRow: {
-    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: "#fff5f5",
-    borderRadius: 4,
+    backgroundColor: "#F3E5F5",
+    borderRadius: 8,
     marginTop: 8,
   },
   discountText: {
     fontSize: 12,
-    color: "#e91e63",
-    textAlign: "center",
+    color: "#8A2BE2",
+    marginLeft: 4,
+    fontWeight: "600",
+  },
+  highlightRow: {
+    flexDirection: "row",
+    marginTop: 16,
+    borderRadius: 12,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+  },
+  highlightItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  highlightLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 6,
+  },
+  highlightValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 4,
+  },
+  dividerVertical: {
+    width: 1,
+    backgroundColor: "#e0e0e0",
+    marginHorizontal: 16,
+  },
+  meetupRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f5f5f5",
+    gap: 12,
   },
   meetupDate: {
     fontSize: 14,
     color: "#333",
+    fontWeight: "500",
+    marginLeft: "auto",
   },
   meetupTime: {
     fontSize: 14,
     color: "#333",
+    fontWeight: "500",
+    marginLeft: "auto",
   },
-  sectionContainer: {
-    backgroundColor: "#f8f9fa",
+  meetupLocation: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "500",
+    marginLeft: "auto",
+    flex: 1,
+    textAlign: "right",
+  },
+  description: {
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 22,
+  },
+  noticeCard: {
+    backgroundColor: "#F3E5F5",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 80,
+    borderLeftWidth: 4,
+    borderLeftColor: "#8A2BE2",
+  },
+  noticeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  noticeTitle: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#8A2BE2",
+    marginLeft: 6,
+  },
+  noticeText: {
+    fontSize: 13,
+    color: "#666",
+    lineHeight: 20,
+  },
+  bottomSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  priceInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  priceLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 4,
+  },
+  priceValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#8A2BE2",
+  },
+  joinButton: {
+    flexDirection: "row",
+    backgroundColor: "#8A2BE2",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#8A2BE2",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  joinButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 6,
   },
   cancelButton: {
     backgroundColor: "#666",
@@ -714,22 +950,22 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   modalButton: {
-    backgroundColor: "#e91e63",
-    borderRadius: 25,
-    paddingVertical: 12,
+    backgroundColor: "#8A2BE2",
+    borderRadius: 12,
+    paddingVertical: 14,
     paddingHorizontal: 40,
-    minWidth: 100,
+    minWidth: 120,
   },
   modalButtonText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "bold",
     textAlign: "center",
   },
   modalButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "80%",
+    width: "100%",
     gap: 12,
   },
   cancelModalButton: {
@@ -740,50 +976,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   confirmCancelButton: {
-    backgroundColor: "#e91e63",
+    backgroundColor: "#8A2BE2",
     flex: 1,
-  },
-  descriptionSection: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
-  },
-  applySection: {
-    marginBottom: 30,
-  },
-  applyText: {
-    fontSize: 14,
-    color: "#333",
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  applySubText: {
-    fontSize: 12,
-    color: "#666",
-    lineHeight: 18,
-  },
-  bottomSection: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  joinButton: {
-    backgroundColor: "#e91e63",
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
-  joinButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });

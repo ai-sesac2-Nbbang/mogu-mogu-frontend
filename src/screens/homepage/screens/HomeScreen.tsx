@@ -258,13 +258,6 @@ export default function HomeScreen() {
       >
         {/* 이미지 컨테이너 */}
         <View style={styles.imageContainer}>
-          {/* AI 추천 배지 */}
-          {selectedFilter === "AI 추천" && item.aiScore >= 90 && (
-            <View style={styles.aiBadge}>
-              <Ionicons name="sparkles" size={9} color="#FFD700" />
-            </View>
-          )}
-
           <Image source={item.image} style={styles.productImage} />
           
           {/* 하트 버튼 */}
@@ -602,20 +595,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: '100%',
-  },
-  aiBadge: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 249, 230, 0.95)",
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-    borderWidth: 1,
-    borderColor: "#FFD700",
   },
   productImage: { 
     width: "100%",

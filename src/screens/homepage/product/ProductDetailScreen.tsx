@@ -907,26 +907,6 @@ export default function ProductDetailScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#8A2BE2" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>상세페이지</Text>
-        <View style={styles.headerActions}>
-          <TouchableOpacity onPress={handleToggleLike} style={styles.headerButton}>
-            <Ionicons 
-              name={isLiked ? "heart" : "heart-outline"} 
-              size={24} 
-              color={isLiked ? "#8A2BE2" : "#666"} 
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="share-outline" size={24} color="#666" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 상품 이미지 */}
         <View style={styles.imageContainer}>
@@ -1221,7 +1201,8 @@ export default function ProductDetailScreen({ navigation }: Props) {
             <Text style={styles.noticeText}>
               • 모구 참여 후 거래가 성사되면 알림을 보내드립니다.{'\n'}
               • 만남 장소와 시간을 꼭 확인해주세요.{'\n'}
-              • 모구장 제외 인원으로 1/n 금액이 책정됩니다.
+              • 금액은 모구장 포함 1/n으로 책정됩니다.{'\n'}
+              • 인원 미충족 시 모구장이 나머지 수량과 금액을 부담합니다.
             </Text>
           </View>
         </View>
@@ -1573,39 +1554,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginTop: 25,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-    position: "relative",
-  },
-  backButton: {
-    padding: 4,
-    zIndex: 1,
-  },
-  headerTitle: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  headerActions: {
-    flexDirection: "row",
-    zIndex: 1,
-  },
-  headerButton: {
-    marginLeft: 16,
-    padding: 4,
-  },
   content: {
     flex: 1,
   },
@@ -1884,9 +1832,11 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    padding: 40,
+    padding: 30,
     alignItems: "center",
     minWidth: 280,
+    maxWidth: "75%",
+    marginHorizontal: 20,
   },
   compactModalContent: {
     backgroundColor: "#fff",
@@ -1952,6 +1902,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     gap: 12,
+    marginTop: 10,
   },
   cancelModalButton: {
     backgroundColor: "#f0f0f0",

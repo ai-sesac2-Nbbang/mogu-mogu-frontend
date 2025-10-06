@@ -204,15 +204,19 @@ const NotificationScreen = () => {
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="black" />
+          <Ionicons name="chevron-back" size={24} color="#8A2BE2" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>알림</Text>
-        {unreadCount > 0 && (
+        <View style={styles.headerTitleContainer}>
+          <Ionicons name="notifications" size={24} color="#8A2BE2" />
+          <Text style={styles.headerTitle}>알림</Text>
+        </View>
+        {unreadCount > 0 ? (
           <TouchableOpacity onPress={handleMarkAllAsRead}>
             <Text style={styles.markAllReadText}>모두 읽음</Text>
           </TouchableOpacity>
+        ) : (
+          <View style={{ width: 60 }} />
         )}
-        {unreadCount === 0 && <View style={{ width: 60 }} />}
       </View>
 
       {/* 탭 */}
@@ -264,22 +268,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingTop: 50,
-    paddingBottom: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginTop: 25,
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   backButton: {
-    padding: 5,
+    padding: 4,
+  },
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#8A2BE2",
   },
   markAllReadText: {
     fontSize: 14,

@@ -12,9 +12,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RouteProp } from '@react-navigation/native';
-import { HomeStackParamList } from "../types/navigation";
+import { HomeStackParamList } from "../../../types/navigation";
 import axios from "axios";
-import ConfirmationModal from "../components/mypage/ConfirmationModal";
+import ConfirmationModal from "../../../components/mypage/ConfirmationModal";
 
 // 네비게이션 타입 정의
 type HomeScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
@@ -46,7 +46,7 @@ export default function HomeScreen() {
       name: "물티슈 10롤", 
       price: "9,170원", 
       participants: "1/3", 
-      image: require("../../assets/products/tissue.png"),
+      image: require("../../../../assets/products/tissue.png"),
       createdAt: new Date(2025, 9, 5, 14, 30), // 2일 전
       distance: 0.5,
       aiScore: 95
@@ -56,7 +56,7 @@ export default function HomeScreen() {
       name: "2080 칫솔 10개", 
       price: "6,420원", 
       participants: "0/2", 
-      image: require("../../assets/products/toothbrush.png"),
+      image: require("../../../../assets/products/toothbrush.png"),
       createdAt: new Date(2025, 9, 6, 9, 15), // 1일 전
       distance: 1.2,
       aiScore: 88
@@ -66,7 +66,7 @@ export default function HomeScreen() {
       name: "도브 샴푸 리필", 
       price: "5,250원", 
       participants: "5/6", 
-      image: require("../../assets/products/shampoo.png"),
+      image: require("../../../../assets/products/shampoo.png"),
       createdAt: new Date(2025, 9, 6, 18, 45), // 오늘
       distance: 0.3,
       aiScore: 92
@@ -76,7 +76,7 @@ export default function HomeScreen() {
       name: "무항생제 계란 30구", 
       price: "7,900원", 
       participants: "2/4", 
-      image: require("../../assets/products/eggs.png"),
+      image: require("../../../../assets/products/eggs.png"),
       createdAt: new Date(2025, 9, 6, 20, 10), // 오늘
       distance: 2.1,
       aiScore: 78
@@ -86,7 +86,7 @@ export default function HomeScreen() {
       name: "삼다수 생수 2L 6병", 
       price: "4,500원", 
       participants: "3/5", 
-      image: require("../../assets/products/tissue.png"),
+      image: require("../../../../assets/products/tissue.png"),
       createdAt: new Date(2025, 9, 4, 16, 20), // 3일 전
       distance: 0.8,
       aiScore: 85
@@ -96,7 +96,7 @@ export default function HomeScreen() {
       name: "프리미엄 휴지 30롤", 
       price: "12,800원", 
       participants: "1/2", 
-      image: require("../../assets/products/tissue.png"),
+      image: require("../../../../assets/products/tissue.png"),
       createdAt: new Date(2025, 9, 6, 21, 30), // 오늘
       distance: 1.5,
       aiScore: 90
@@ -106,7 +106,7 @@ export default function HomeScreen() {
       name: "주방세제 3개 세트", 
       price: "8,900원", 
       participants: "4/5", 
-      image: require("../../assets/products/shampoo.png"),
+      image: require("../../../../assets/products/shampoo.png"),
       createdAt: new Date(2025, 9, 5, 10, 0), // 2일 전
       distance: 0.6,
       aiScore: 82
@@ -116,7 +116,7 @@ export default function HomeScreen() {
       name: "고급 칫솔 세트 20개", 
       price: "11,500원", 
       participants: "2/3", 
-      image: require("../../assets/products/toothbrush.png"),
+      image: require("../../../../assets/products/toothbrush.png"),
       createdAt: new Date(2025, 9, 6, 22, 0), // 오늘
       distance: 3.2,
       aiScore: 75
@@ -126,7 +126,7 @@ export default function HomeScreen() {
       name: "헤어케어 샴푸 1L", 
       price: "9,900원", 
       participants: "3/4", 
-      image: require("../../assets/products/shampoo.png"),
+      image: require("../../../../assets/products/shampoo.png"),
       createdAt: new Date(2025, 9, 6, 15, 40), // 오늘
       distance: 1.8,
       aiScore: 87

@@ -12,7 +12,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { HomeStackParamList } from "../types/navigation";
+import { HomeStackParamList } from "../../../types/navigation";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import * as Location from 'expo-location';
 

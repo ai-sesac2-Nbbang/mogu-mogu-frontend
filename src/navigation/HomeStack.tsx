@@ -1,11 +1,11 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "../screens/HomeScreen";
-import AddressScreen from "../screens/AddressScreen";
-import ProductDetailScreen from "../screens/ProductDetailScreen";
-import ProductAddScreen from "../screens/ProductAddScreen";
-import SearchScreen from "../screens/SearchScreen";
-import NotificationScreen from "../screens/NotificationScreen";
+import HomeScreen from "../screens/homepage/screens/HomeScreen";
+import AddressScreen from "../screens/homepage/screens/AddressScreen";
+import ProductDetailScreen from "../screens/homepage/product/ProductDetailScreen";
+import ProductAddScreen from "../screens/homepage/product/ProductAddScreen";
+import SearchScreen from "../screens/homepage/screens/SearchScreen";
+import NotificationScreen from "../screens/homepage/screens/NotificationScreen";
 import { HomeStackParamList } from "../types/navigation";
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();

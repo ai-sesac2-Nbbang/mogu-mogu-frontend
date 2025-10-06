@@ -246,15 +246,6 @@ export default function AddressScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* 타이틀 섹션 */}
-      <View style={styles.titleSection}>
-        <View style={styles.titleRow}>
-          <Ionicons name="location" size={28} color="#8A2BE2" />
-          <Text style={styles.title}>주소 설정</Text>
-        </View>
-        <Text style={styles.subtitle}>배송받을 주소를 선택하거나 추가해주세요</Text>
-      </View>
-
       {/* 검색창 */}
       <View style={styles.searchBox}>
         <Ionicons name="search-outline" size={20} color="#8A2BE2" />
@@ -303,7 +294,7 @@ export default function AddressScreen({ navigation }: Props) {
             : `search-${(item as NormalizedAddress).address_name}-${index}`
         }
         renderItem={renderItem}
-        style={{ marginTop: 15 }}
+        contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           query.trim() ? (
             <View style={styles.emptyContainer}>
@@ -321,27 +312,6 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: "#f8f9fa", 
-    padding: 20 
-  },
-  titleSection: {
-    marginBottom: 24,
-    paddingTop: 20,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
-    marginLeft: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginLeft: 38,
   },
   searchBox: {
     flexDirection: "row",
@@ -352,6 +322,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#fff",
+    marginHorizontal: 20,
+    marginTop: 20,
     shadowColor: "#8A2BE2",
     shadowOffset: {
       width: 0,
@@ -369,6 +341,7 @@ const styles = StyleSheet.create({
   },
   locationBtn: {
     marginTop: 12,
+    marginHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -389,6 +362,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 24,
     marginBottom: 8,
+    marginHorizontal: 20,
   },
   dividerLine: {
     flex: 1,
@@ -400,6 +374,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#999",
     fontWeight: "600",
+  },
+  listContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 20,
   },
   addressItem: {
     flexDirection: "row",

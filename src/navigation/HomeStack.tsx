@@ -1,4 +1,6 @@
 import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/homepage/screens/HomeScreen";
 import AddressScreen from "../screens/homepage/screens/AddressScreen";
@@ -21,17 +23,46 @@ export default function HomeStack() {
       <Stack.Screen 
         name="Address" 
         component={AddressScreen}
-        options={{ 
-          title: "주소 설정",
+        options={({ navigation }) => ({
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="location" size={24} color="#8A2BE2" />
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#8A2BE2' }}>주소 설정</Text>
+            </View>
+          ),
           headerTitleAlign: "center",
-        }}
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#8A2BE2',
+        })}
       />
       <Stack.Screen 
         name="ProductDetail" 
         component={ProductDetailScreen}
-        options={{ 
-          headerShown: false,
-        }}
+        options={({ navigation }) => ({
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="document-text" size={24} color="#8A2BE2" />
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#8A2BE2' }}>상세페이지</Text>
+            </View>
+          ),
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#8A2BE2',
+          headerRight: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <TouchableOpacity onPress={() => {}}>
+                <Ionicons name="heart-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {}}>
+                <Ionicons name="share-outline" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
       />
       <Stack.Screen 
         name="ProductAdd" 

@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../types/navigation';
+import { HomeStackParamList } from '../../../types/navigation';
 
 type NotificationScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Notification'>;
 
@@ -42,7 +42,7 @@ const NotificationScreen = () => {
         time: '5분 전',
         isRead: false,
         productId: 1,
-        productImage: require('../../assets/products/tissue.png'),
+        productImage: require('../../../../assets/products/tissue.png'),
       },
       {
         id: '2',
@@ -52,7 +52,7 @@ const NotificationScreen = () => {
         time: '1시간 전',
         isRead: false,
         productId: 2,
-        productImage: require('../../assets/products/toothbrush.png'),
+        productImage: require('../../../../assets/products/toothbrush.png'),
       },
       {
         id: '3',
@@ -62,7 +62,7 @@ const NotificationScreen = () => {
         time: '3시간 전',
         isRead: true,
         productId: 3,
-        productImage: require('../../assets/products/shampoo.png'),
+        productImage: require('../../../../assets/products/shampoo.png'),
       },
       {
         id: '4',
@@ -89,7 +89,7 @@ const NotificationScreen = () => {
         time: '2일 전',
         isRead: true,
         productId: 4,
-        productImage: require('../../assets/products/eggs.png'),
+        productImage: require('../../../../assets/products/eggs.png'),
       },
     ];
 

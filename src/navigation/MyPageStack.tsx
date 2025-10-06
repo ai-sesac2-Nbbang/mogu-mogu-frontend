@@ -16,7 +16,7 @@ import ReviewsScreen from '../screens/mypage/products/ReviewsScreen';
 import SoldProductsScreen from '../screens/mypage/products/SoldProductsScreen';
 import PurchasedProductsScreen from '../screens/mypage/products/PurchasedProductsScreen';
 // Other screens
-import ProductDetailScreen from '../screens/ProductDetailScreen';
+import ProductDetailScreen from '../screens/homepage/product/ProductDetailScreen';
 
 const Stack = createNativeStackNavigator();
 

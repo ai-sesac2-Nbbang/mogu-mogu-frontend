@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../types/navigation';
+import { HomeStackParamList } from '../../../types/navigation';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<HomeStackParamList, 'Search'>;
 
@@ -34,11 +34,11 @@ const SearchScreen = () => {
 
   // 더미 상품 데이터
   const allProducts: Product[] = [
-    { id: 1, name: '프리미엄 롤화장지 10롤', price: '9,170원', participants: '1/3', image: require('../../assets/products/tissue.png'), category: '생활용품' },
-    { id: 2, name: '2080 칫솔 10개 세트', price: '6,420원', participants: '0/2', image: require('../../assets/products/toothbrush.png'), category: '생활용품' },
-    { id: 3, name: '도브 샴푸 리필 500ml', price: '5,250원', participants: '5/6', image: require('../../assets/products/shampoo.png'), category: '생활용품' },
-    { id: 4, name: '무항생제 계란 30구', price: '7,900원', participants: '2/4', image: require('../../assets/products/eggs.png'), category: '식품' },
-    { id: 5, name: '삼다수 생수 2L 6병', price: '4,500원', participants: '3/5', image: require('../../assets/products/tissue.png'), category: '음료' },
+    { id: 1, name: '프리미엄 롤화장지 10롤', price: '9,170원', participants: '1/3', image: require('../../../../assets/products/tissue.png'), category: '생활용품' },
+    { id: 2, name: '2080 칫솔 10개 세트', price: '6,420원', participants: '0/2', image: require('../../../../assets/products/toothbrush.png'), category: '생활용품' },
+    { id: 3, name: '도브 샴푸 리필 500ml', price: '5,250원', participants: '5/6', image: require('../../../../assets/products/shampoo.png'), category: '생활용품' },
+    { id: 4, name: '무항생제 계란 30구', price: '7,900원', participants: '2/4', image: require('../../../../assets/products/eggs.png'), category: '식품' },
+    { id: 5, name: '삼다수 생수 2L 6병', price: '4,500원', participants: '3/5', image: require('../../../../assets/products/tissue.png'), category: '음료' },
   ];
 
   // 검색 실행

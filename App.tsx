@@ -90,7 +90,9 @@ export default function App() {
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+          </>
         ) : (
           <Stack.Screen name="AuthStack">
             {() => (

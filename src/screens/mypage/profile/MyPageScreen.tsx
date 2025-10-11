@@ -21,7 +21,7 @@ export default function MyPageScreen() {
   const [selectedTab, setSelectedTab] = React.useState<"personal" | "mogujang" | "mogurur">("personal");
   const [userProfile, setUserProfile] = useState({
     nickname: "나찬솔씨", // 기본값
-    profileImage: require("../../../../assets/cart.png") as ImageSourcePropType, // 모구모구 캐릭터 이미지
+    profileImage: require("../../../../assets/mogumogu.png") as ImageSourcePropType, // 모구모구 캐릭터 이미지
   });
 
   // 배지 상태 관리
@@ -160,19 +160,19 @@ export default function MyPageScreen() {
         if (mockResponse.data) {
           setUserProfile({
             nickname: mockResponse.data.nickname,
-            profileImage: mockResponse.data.profileImageUri ? { uri: mockResponse.data.profileImageUri } : require("../../../../assets/cart.png"),
+            profileImage: mockResponse.data.profileImageUri ? { uri: mockResponse.data.profileImageUri } : require("../../../../assets/mogumogu.png"),
           });
         } else {
            setUserProfile({
              nickname: "기본 라이언",
-             profileImage: require("../../../../assets/cart.png"),
+             profileImage: require("../../../../assets/mogumogu.png"),
            });
         }
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         setUserProfile({
           nickname: "에러 발생 라이언",
-          profileImage: require("../../../../assets/cart.png"),
+          profileImage: require("../../../../assets/mogumogu.png"),
         });
       }
     };

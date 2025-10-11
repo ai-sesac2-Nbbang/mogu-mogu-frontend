@@ -42,7 +42,6 @@ export default function AuthStack({
             <LoginScreen
               {...props}
               setIsLoggedIn={setIsLoggedIn}
-              setNeedOnboarding={setNeedOnboarding}
             />
           )}
         </Stack.Screen>

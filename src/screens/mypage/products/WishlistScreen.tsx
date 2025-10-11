@@ -121,7 +121,11 @@ const WishlistScreen = () => {
       style={styles.productItem}
       onPress={() => {
         // 상품 상세 페이지로 이동
-        navigation.navigate('ProductDetail' as never, { productId: item.id } as never);
+        try {
+          (navigation as any).navigate('ProductDetail', { productId: item.id });
+        } catch (error) {
+          console.log('Navigation error:', error);
+        }
       }}
     >
       <Image source={item.image} style={styles.productImage} />

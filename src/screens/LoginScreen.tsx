@@ -127,7 +127,7 @@ export default function LoginScreen({ navigation, setIsLoggedIn }: Props) {
     <View style={styles.container}>
       {/* 중앙 이미지 */}
       <Image
-        source={require("../../assets/cart.png")}
+        source={require("../../assets/mogumogu.png")}
         style={styles.image}
         resizeMode="contain"
       />

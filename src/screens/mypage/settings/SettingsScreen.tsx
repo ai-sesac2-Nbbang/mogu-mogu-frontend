@@ -85,9 +85,13 @@ const SettingsScreen = () => {
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>고객 센터</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('MoguChat' as never)}
+        >
           <Text style={styles.settingText}>모구봇</Text>
         </TouchableOpacity>
+
 
         <View style={styles.sectionDivider} />
 

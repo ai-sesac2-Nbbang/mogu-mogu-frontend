@@ -15,6 +15,8 @@ import RecentlyViewedScreen from '../screens/mypage/products/RecentlyViewedScree
 import ReviewsScreen from '../screens/mypage/products/ReviewsScreen';
 import SoldProductsScreen from '../screens/mypage/products/SoldProductsScreen';
 import PurchasedProductsScreen from '../screens/mypage/products/PurchasedProductsScreen';
+// Chat screens
+import MoguChatScreen from '../screens/MoguChatScreen';
 // Other screens
 import ProductDetailScreen from '../screens/homepage/product/ProductDetailScreen';
 
@@ -35,6 +37,7 @@ const MyPageStack = () => {
       <Stack.Screen name="PurchasedProducts" component={PurchasedProductsScreen} />
       <Stack.Screen name="Notice" component={NoticeScreen} />
       <Stack.Screen name="Terms" component={TermsScreen} />
+      <Stack.Screen name="MoguChat" component={MoguChatScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
     </Stack.Navigator>
   );

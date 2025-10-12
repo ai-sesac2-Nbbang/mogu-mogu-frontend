@@ -2,7 +2,7 @@ import axios from 'axios';
 // import { getJwtToken } from '../screens/LoginScreen';
 
 const instance = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'https://acb4995d2e6e.ngrok-free.app',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'https://your-api-server-url.com',
 });
 
 // 요청 인터셉터 설정

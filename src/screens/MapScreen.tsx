@@ -19,8 +19,29 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 
 import { Ionicons } from "@expo/vector-icons";
+import Constants from 'expo-constants';
+import { EXPO_PUBLIC_KAKAO_JS_KEY } from '@env';
 
-const KAKAO_JS_KEY: string = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? "";
+// API 키 로딩 - 환경 변수만 사용 (보안 강화)
+const KAKAO_JS_KEY: string = 
+  process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? 
+  EXPO_PUBLIC_KAKAO_JS_KEY ?? 
+  ""; // API 키가 없으면 빈 문자열
+
+// API 키 로딩 디버깅
+console.log('=== API 키 로딩 디버깅 ===');
+console.log('process.env.EXPO_PUBLIC_KAKAO_JS_KEY:', process.env.EXPO_PUBLIC_KAKAO_JS_KEY);
+console.log('@env EXPO_PUBLIC_KAKAO_JS_KEY:', EXPO_PUBLIC_KAKAO_JS_KEY);
+console.log('최종 KAKAO_JS_KEY:', KAKAO_JS_KEY);
+console.log('KAKAO_JS_KEY 길이:', KAKAO_JS_KEY.length);
+console.log('KAKAO_JS_KEY가 비어있는가:', KAKAO_JS_KEY === "");
+
+// API 키가 없을 때 경고
+if (KAKAO_JS_KEY === "") {
+  console.error('❌ 카카오 맵 API 키가 설정되지 않았습니다!');
+  console.error('❌ .env 파일에 EXPO_PUBLIC_KAKAO_JS_KEY를 설정해주세요.');
+  console.error('❌ 환경 변수가 제대로 로드되지 않았을 수 있습니다.');
+}
 
 // ✅ 서울시청 좌표
 const SEOUL_CITY_HALL = { lat: 37.5662952, lng: 126.9779451 };
@@ -58,7 +79,7 @@ const dummyMoguItems: MoguItem[] = [
   { id: 24, name: "청바지 2벌", price: "25,000원", participants: "1/3", image: require("../../assets/products/toothbrush.png"), lat: 37.2986, lng: 127.6371, category: "의류", endDate: "3일 후", distance: 1.1, meetingSpot: "용인역 1번 출구", meetingTime: "12/28 오후 5:00" },
   { id: 25, name: "스마트워치", price: "80,000원", participants: "1/3", image: require("../../assets/products/toothbrush.png"), lat: 37.4138, lng: 127.5183, category: "전자제품", endDate: "4일 후", distance: 0.9, meetingSpot: "분당역 2번 출구", meetingTime: "12/29 오후 3:30" },
   { id: 26, name: "세탁세제 5kg", price: "18,000원", participants: "2/3", image: require("../../assets/products/tissue.png"), lat: 37.2800, lng: 127.0000, category: "생활용품", endDate: "3일 후", distance: 1.2, meetingSpot: "의정부역 1번 출구", meetingTime: "12/28 오후 1:00" },
-  { id: 27, name: "바디워시 500ml", price: "7,200원", participants: "2/3", image: require("../../assets/products/shampoo.png"), lat: 37.3500, lng: 126.9000, category: "화장품", endDate: "1일 후", distance: 1.6, meetingSpot: "부천역 3번 출구", meetingTime: "12/25 오후 6:00" },
+  { id: 27, name: "바디워시 500ml", price: "7,200원", participants: "2/3", image: require("../../assets/products/shampoo.png"), lat: 37.3450, lng: 126.9000, category: "화장품", endDate: "1일 후", distance: 1.6, meetingSpot: "부천역 3번 출구", meetingTime: "12/25 오후 6:00" },
   { id: 28, name: "신선한 사과 2kg", price: "8,500원", participants: "3/5", image: require("../../assets/products/eggs.png"), lat: 37.4000, lng: 127.5000, category: "식품", endDate: "3일 후", distance: 1.8, meetingSpot: "하남역 2번 출구", meetingTime: "12/28 오후 4:00" },
   { id: 29, name: "운동화 1켤레", price: "35,000원", participants: "2/2", image: require("../../assets/products/shampoo.png"), lat: 37.3000, lng: 127.6000, category: "의류", endDate: "5일 후", distance: 1.3, meetingSpot: "광주역 1번 출구", meetingTime: "12/30 오후 3:00" },
   { id: 30, name: "충전기 세트", price: "12,000원", participants: "2/4", image: require("../../assets/products/shampoo.png"), lat: 37.4200, lng: 127.5200, category: "전자제품", endDate: "3일 후", distance: 1.7, meetingSpot: "이천역 2번 출구", meetingTime: "12/28 오후 5:30" },
@@ -203,25 +224,47 @@ export default function MapScreen() {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MoguItem | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [ongoingMoguCount, setOngoingMoguCount] = useState<number>(0);
+  
+  // 근처 마커 관련 상태 추가
+  const [nearbyMarkers, setNearbyMarkers] = useState<MoguItem[]>([]);
+  const [showNearbyList, setShowNearbyList] = useState(false);
 
-  // 데이터베이스에서 진행 중인 모구 수를 가져오는 함수
-  const fetchOngoingMoguCount = async () => {
-    try {
-      // TODO: 실제 API 호출로 교체
-      // const response = await fetch('/api/mogu/ongoing-count');
-      // const data = await response.json();
-      // setOngoingMoguCount(data.count);
-      
-      // 임시로 더미 데이터 사용 (실제 구현 시 주석 처리)
-      setOngoingMoguCount(47); // 예시: 47개의 진행 중인 모구
-      
-      console.log('진행 중인 모구 수:', 47);
-    } catch (error) {
-      console.error('진행 중인 모구 수 조회 오류:', error);
-      setOngoingMoguCount(0);
-    }
+  // 두 좌표 간의 거리 계산 (Haversine 공식)
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371; // 지구의 반지름 (km)
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   };
+
+  // 반경 3km 내의 마커들을 찾는 함수
+  const findNearbyMarkers = (userLat: number, userLng: number, radiusKm: number = 3): MoguItem[] => {
+    console.log('=== 거리 계산 디버깅 ===');
+    console.log('사용자 위치:', userLat, userLng);
+    console.log('검색 반경:', radiusKm, 'km');
+    
+    const nearbyItems = dummyMoguItems
+      .map(item => ({
+        ...item,
+        distance: calculateDistance(userLat, userLng, item.lat, item.lng)
+      }))
+      .filter(item => item.distance <= radiusKm)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3); // 최대 3개만
+    
+    console.log('근처 마커 개수:', nearbyItems.length);
+    console.log('근처 마커 목록:', nearbyItems.map(item => ({
+      name: item.name,
+      distance: item.distance.toFixed(2) + 'km'
+    })));
+    
+    return nearbyItems;
+  };
+
 
   const getLocation = async () => {
     setIsGettingLocation(true);
@@ -230,15 +273,29 @@ export default function MapScreen() {
       if (status !== "granted") {
         Alert.alert("위치 권한 필요", "서울시청을 기본 위치로 사용합니다.");
         setCoords(SEOUL_CITY_HALL);
+        // 서울시청 위치에서도 근처 마커 찾기
+        const nearbyItems = findNearbyMarkers(SEOUL_CITY_HALL.lat, SEOUL_CITY_HALL.lng);
+        setNearbyMarkers(nearbyItems);
+        setShowNearbyList(true);
         return;
       }
       const pos = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Lowest,
       });
-      setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      const newCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      setCoords(newCoords);
+      
+      // 근처 마커 찾기
+      const nearbyItems = findNearbyMarkers(newCoords.lat, newCoords.lng);
+      setNearbyMarkers(nearbyItems);
+      setShowNearbyList(true);
     } catch (e: any) {
       console.warn("위치 오류:", e?.message);
       setCoords(SEOUL_CITY_HALL);
+      // 서울시청 위치에서도 근처 마커 찾기
+      const nearbyItems = findNearbyMarkers(SEOUL_CITY_HALL.lat, SEOUL_CITY_HALL.lng);
+      setNearbyMarkers(nearbyItems);
+      setShowNearbyList(true);
     } finally {
       setIsGettingLocation(false);
     }
@@ -252,14 +309,11 @@ export default function MapScreen() {
         // 더미 데이터 로드
         setMoguItems(dummyMoguItems);
         setFilteredItems(dummyMoguItems);
-        // 진행 중인 모구 수 조회
-        await fetchOngoingMoguCount();
       } catch (error) {
         console.error('초기화 오류:', error);
         // 기본 데이터라도 설정
         setMoguItems(dummyMoguItems);
         setFilteredItems(dummyMoguItems);
-        await fetchOngoingMoguCount();
       }
     };
     
@@ -344,7 +398,9 @@ export default function MapScreen() {
             overflow: hidden;
           }
         </style>
-        <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&libraries=services"></script>
+        <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&libraries=services" 
+                onload="console.log('✅ 카카오 맵 SDK 로드 성공, API 키:', '${KAKAO_JS_KEY}')"
+                onerror="console.error('❌ 카카오 맵 SDK 로드 실패, API 키:', '${KAKAO_JS_KEY}')"></script>
       </head>
       <body>
         <div id="map"></div>
@@ -352,12 +408,85 @@ export default function MapScreen() {
 
           var map, myMarker, myCircle, moguMarkers = [];
           var isMapReady = false;
+          var zoomChangeListener = null;
+          var mapClickListener = null;
+
+          // 마커와 이벤트 리스너를 안전하게 정리하는 함수
+          function clearAllMarkers() {
+            try {
+              // 기존 마커들 제거
+              moguMarkers.forEach(function(marker) {
+                if (marker && marker.setMap) {
+                  marker.setMap(null);
+                  // 마커에 저장된 이벤트 리스너 제거
+                  if (marker.clickListener) {
+                    try {
+                      kakao.maps.event.removeListener(marker.clickListener);
+                    } catch (e) {
+                      console.log('이벤트 리스너 제거 오류:', e);
+                    }
+                  }
+                }
+              });
+              moguMarkers = [];
+              
+              // 줌 변경 이벤트 리스너 제거
+              if (zoomChangeListener) {
+                try {
+                  kakao.maps.event.removeListener(zoomChangeListener);
+                  zoomChangeListener = null;
+                } catch (e) {
+                  console.log('줌 변경 이벤트 리스너 제거 오류:', e);
+                }
+              }
+              
+              // 지도 클릭 이벤트 리스너 제거
+              if (mapClickListener) {
+                try {
+                  kakao.maps.event.removeListener(mapClickListener);
+                  mapClickListener = null;
+                } catch (e) {
+                  console.log('지도 클릭 이벤트 리스너 제거 오류:', e);
+                }
+              }
+            } catch (error) {
+              console.error('마커 정리 오류:', error);
+            }
+          }
+
 
           function initMap() {
-
             try {
+              console.log('=== 지도 초기화 시작 ===');
+              console.log('kakao 객체 존재:', typeof kakao !== 'undefined');
+              console.log('kakao.maps 존재:', typeof kakao !== 'undefined' && !!kakao.maps);
+              console.log('API 키:', '${KAKAO_JS_KEY}');
+              console.log('API 키 길이:', '${KAKAO_JS_KEY}'.length);
+              
               if (typeof kakao === 'undefined' || !kakao.maps) {
-                console.error('카카오 맵 SDK 로드 실패');
+                console.error('❌ 카카오 맵 SDK 로드 실패');
+                console.error('API 키:', '${KAKAO_JS_KEY}');
+                console.error('API 키 길이:', '${KAKAO_JS_KEY}'.length);
+                
+                var errorMessage = '';
+                if ('${KAKAO_JS_KEY}' === '') {
+                  errorMessage = 
+                    '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #666; font-family: Arial, sans-serif; padding: 20px;">' +
+                    '<h3>❌ 지도를 불러올 수 없습니다</h3>' +
+                    '<p>카카오 맵 API 키가 설정되지 않았습니다.</p>' +
+                    '<p style="color: #ff6b6b; font-weight: bold;">개발자에게 API 키 설정을 요청해주세요.</p>' +
+                    '<p style="font-size: 12px; color: #999;">.env 파일에 EXPO_PUBLIC_KAKAO_JS_KEY를 설정해주세요.</p>' +
+                    '</div>';
+                } else {
+                  errorMessage = 
+                    '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #666; font-family: Arial, sans-serif; padding: 20px;">' +
+                    '<h3>❌ 지도를 불러올 수 없습니다</h3>' +
+                    '<p>카카오 맵 API 키가 유효하지 않습니다.</p>' +
+                    '<p style="color: #ff6b6b; font-weight: bold;">개발자에게 문의해주세요.</p>' +
+                    '</div>';
+                }
+                
+                document.getElementById('map').innerHTML = errorMessage;
                 return;
               }
 
@@ -367,8 +496,10 @@ export default function MapScreen() {
             });
 
 
+
               isMapReady = true;
-              console.log('지도 초기화 완료');
+              console.log('✅ 지도 초기화 완료');
+              console.log('✅ API 키로 지도 로드 성공:', '${KAKAO_JS_KEY}');
             } catch (error) {
               console.error('지도 초기화 오류:', error);
             }
@@ -466,7 +597,8 @@ export default function MapScreen() {
                   
                   marker.infoWindow = iw;
                   
-                  kakao.maps.event.addListener(marker, 'click', function() {
+                  // 이벤트 리스너를 마커에 저장하여 나중에 제거할 수 있도록 함
+                  marker.clickListener = kakao.maps.event.addListener(marker, 'click', function() {
                     // WebView에서 React Native로 메시지 전송하여 Modal 띄우기
                     window.ReactNativeWebView.postMessage(JSON.stringify({
                       type: 'showItemModal',
@@ -610,7 +742,8 @@ export default function MapScreen() {
                       setTimeout(function() {
                         console.log('세분화된 클러스터 렌더링 시작, 아이템 수:', cluster.items.length);
                         if (cluster.items && cluster.items.length > 0) {
-                          renderClusterMarkers(cluster.items);
+                          // 재귀 호출 대신 직접 개별 마커 렌더링
+                          renderIndividualMarkers(cluster.items);
                         }
                       }, 500); // 줌인 애니메이션 완료 후 클러스터 렌더링
                     }
@@ -622,8 +755,8 @@ export default function MapScreen() {
                 }
               }
               
-              moguMarkers.forEach(m => m.setMap(null));
-              moguMarkers = [];
+              // 기존 마커와 이벤트 리스너 정리
+              clearAllMarkers();
 
               var currentLevel = map.getLevel();
               console.log('현재 줌 레벨:', currentLevel);
@@ -640,38 +773,42 @@ export default function MapScreen() {
                 renderIndividualMarkers(items);
               }
 
-              // 지도 줌 변경 이벤트 리스너
-              kakao.maps.event.addListener(map, 'zoom_changed', function() {
-                try {
-                  var newLevel = map.getLevel();
-                  console.log('줌 레벨 변경됨:', newLevel);
-                  
-                  // 기존 마커들 제거
-                  moguMarkers.forEach(m => m.setMap(null));
-                  moguMarkers = [];
-                  
-                  if (newLevel >= 6) {
-                    console.log('줌 변경으로 클러스터 모드 전환');
-                    renderClusterMarkers(items);
-                  } else {
-                    console.log('줌 변경으로 개별 마커 모드 전환');
-                    renderIndividualMarkers(items);
+              // 지도 줌 변경 이벤트 리스너 (중복 등록 방지)
+              if (!zoomChangeListener) {
+                zoomChangeListener = kakao.maps.event.addListener(map, 'zoom_changed', function() {
+                  try {
+                    var newLevel = map.getLevel();
+                    console.log('줌 레벨 변경됨:', newLevel);
+                    
+                    // 기존 마커들 제거
+                    moguMarkers.forEach(m => m.setMap(null));
+                    moguMarkers = [];
+                    
+                    if (newLevel >= 6) {
+                      console.log('줌 변경으로 클러스터 모드 전환');
+                      renderClusterMarkers(items);
+                    } else {
+                      console.log('줌 변경으로 개별 마커 모드 전환');
+                      renderIndividualMarkers(items);
+                    }
+                  } catch (error) {
+                    console.error('줌 변경 이벤트 오류:', error);
                   }
-                } catch (error) {
-                  console.error('줌 변경 이벤트 오류:', error);
-                }
-              });
+                });
+              }
 
-              // 지도 클릭 시 모든 정보창 닫기
-              kakao.maps.event.addListener(map, 'click', function() {
-                // 모든 마커의 정보창 닫기
-                for (var i = 0; i < moguMarkers.length; i++) {
-                  var marker = moguMarkers[i];
-                  if (marker.infoWindow) {
-                    marker.infoWindow.close();
+              // 지도 클릭 시 모든 정보창 닫기 (중복 등록 방지)
+              if (!mapClickListener) {
+                mapClickListener = kakao.maps.event.addListener(map, 'click', function() {
+                  // 모든 마커의 정보창 닫기
+                  for (var i = 0; i < moguMarkers.length; i++) {
+                    var marker = moguMarkers[i];
+                    if (marker.infoWindow) {
+                      marker.infoWindow.close();
+                    }
                   }
-                }
-              });
+                });
+              }
             } catch (error) {
               console.error('모구 아이템 렌더링 오류:', error);
             }
@@ -854,21 +991,64 @@ export default function MapScreen() {
           </View>
         )}
 
-        {/* 하단 정보 오버레이 */}
-        <View style={styles.bottomOverlay}>
-          <View style={styles.leftInfo}>
-            <View style={styles.infoItem}>
-              <Ionicons name="location" size={16} color="#FF0000" />
-              <Text style={[styles.infoText, { color: "#FF0000" }]}>내 위치</Text>
+        {/* 근처 마커 리스트 (오른쪽 상단) */}
+        {showNearbyList && (
+          <View style={styles.nearbyListContainer}>
+            <View style={styles.nearbyListHeader}>
+              <Text style={styles.nearbyListTitle}>
+                근처 모구 TOP {nearbyMarkers.length} (거리순)
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowNearbyList(false)}
+                style={styles.nearbyListCloseButton}
+              >
+                <Ionicons name="close" size={16} color="#666" />
+              </TouchableOpacity>
             </View>
+
+            <ScrollView 
+              style={styles.nearbyListContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {nearbyMarkers.length > 0 ? (
+                nearbyMarkers.map((item, index) => {
+                  const distance = calculateDistance(coords.lat, coords.lng, item.lat, item.lng);
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.nearbyListItem}
+                      onPress={() => {
+                        setSelectedItem(item);
+                        setShowInfoModal(true);
+                      }}
+                    >
+                      <View style={styles.nearbyListItemContent}>
+                        <View style={styles.nearbyListItemRow}>
+                          <Text style={styles.nearbyListItemName} numberOfLines={1}>
+                            {item.name}
+                          </Text>
+                          <Text style={styles.nearbyListItemPrice}>{item.price}</Text>
+                          <Text style={styles.nearbyListItemDistance}>
+                            {distance.toFixed(1)}km
+                          </Text>
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward" size={12} color="#999" />
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <View style={styles.nearbyListEmpty}>
+                  <Ionicons name="location-outline" size={32} color="#ccc" />
+                  <Text style={styles.nearbyListEmptyText}>
+                    근처에 모구가 없습니다
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
           </View>
-          <View style={styles.rightInfo}>
-            <View style={styles.infoItem}>
-              <View style={styles.moguMarker} />
-              <Text style={styles.infoText}>진행 중인 모구 수: {ongoingMoguCount}개</Text>
-            </View>
-          </View>
-        </View>
+        )}
+
 
         {/* 현재 위치 버튼 */}
       <TouchableOpacity
@@ -1085,7 +1265,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 8,
-    zIndex: 1000,
+    zIndex: 2000,
   },
   filterDropdownHeader: {
     flexDirection: "row",
@@ -1150,54 +1330,6 @@ const styles = StyleSheet.create({
   },
   categoryTextActive: {
     color: "#fff",
-    fontWeight: "600",
-  },
-  bottomOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(240, 240, 240, 0.8)",
-    zIndex: 1000,
-  },
-  leftInfo: {
-    flex: 1,
-    alignItems: "flex-start",
-  },
-  centerInfo: {
-    flex: 1,
-    alignItems: "center",
-  },
-  rightInfo: {
-    flex: 1,
-    alignItems: "flex-end",
-    justifyContent: "center",
-  },
-  infoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  infoText: {
-    fontSize: 12,
-    color: "#666",
-    marginLeft: 4,
-  },
-  moguMarker: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#8A2BE2",
-  },
-  countText: {
-    fontSize: 13,
-    color: "#8A2BE2",
     fontWeight: "600",
   },
   locationButton: {
@@ -1304,6 +1436,93 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  nearbyListContainer: {
+    position: 'absolute',
+    top: 100,
+    right: 16,
+    width: 200,
+    maxHeight: 300,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 1000,
+  },
+  nearbyListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  nearbyListTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+  },
+  nearbyListCloseButton: {
+    padding: 2,
+  },
+  nearbyListContent: {
+    maxHeight: 240,
+  },
+  nearbyListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  nearbyListItemContent: {
+    flex: 1,
+  },
+  nearbyListItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  nearbyListItemName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+    marginRight: 8,
+  },
+  nearbyListItemPrice: {
+    fontSize: 10,
+    color: '#8A2BE2',
+    fontWeight: '500',
+    marginRight: 8,
+  },
+  nearbyListItemDistance: {
+    fontSize: 9,
+    color: '#666',
+    minWidth: 35,
+    textAlign: 'right',
+  },
+  nearbyListEmpty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+  },
+  nearbyListEmptyText: {
+    fontSize: 11,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 16,
   },
 });
 
